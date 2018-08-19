@@ -21,5 +21,6 @@
 #include "DeviceStatus.h"
 #include "InitAllDevices.h"
 #include "IE.h"
+#include "fuzzycontrol.h"
 
 #endif

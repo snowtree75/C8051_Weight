@@ -4,7 +4,6 @@
 说明：为了显示单片机与上位机的通信状态，使用一个
 			连续计数的变量
 ***********************************************/
-extern unsigned long ulDeviceCount;
 extern unsigned long count;
 /***********************************************
 说明：保存了板载CPS120传感器测量的大气压强与温度值
@@ -36,8 +35,8 @@ extern unsigned int uiDeviceP2FirstVolumnDianWei;
 /***********************************************
 说明：保存串口从其他设备发来的数据
 ***********************************************/
-extern char   ucCom0ReceiveByte[32]; // 天平
-extern unsigned char   ucCom1ReceiveByte[256]; // 上位机
+extern char   					ucCom0ReceiveByte[32]; // 天平
+extern unsigned char   	ucCom1ReceiveByte[256]; // 上位机
 
 extern unsigned char		ucCom0ReceivePointer;
 extern unsigned char		ucCom1ReceivePointer;
@@ -45,8 +44,14 @@ extern unsigned char		ucCom1ReceivePointer;
 说明：保存着通过串口0发来的重量数据
 ***********************************************/
 extern float		fTotalWeight;//样品的总重量
+extern float 		fFlask1Weight;
+extern float 		fFlask2Weight;
+extern float		fCurPurePervious100Weight;
+extern float 		fCurPureNext100Weight;
 extern float		fCurWeight; 	//回收液体的重量
+extern float 		fCurPureWeight;
 extern float 		fCurWeightPer;
+extern float 		fCurPurePervious100Weight;
 /***********************************************
 说明：保存着通过串口1发来的加热炉子功率
 ***********************************************/
@@ -65,6 +70,11 @@ extern unsigned int uiPower4;
 extern unsigned char ucCurDeviceStatus;//仪器工作状态
 extern unsigned long ulCountTime;//计时时间
 extern unsigned long ulFirstPointPeroid;//保存初馏点时间
+extern unsigned char currentCommand;
+extern bit furnanceWorking;
+extern bit cryostatWorking;
+extern bit fanWorking;
+
 /***********************************************
 说明：保存着仪器PID控制变量
 ***********************************************/
@@ -87,6 +97,10 @@ extern unsigned char ucPointer;
 
 extern float fVelocity;//滴速，滴/分钟
 
+extern float fPrePureWeight;
+extern float fCurVelocity;
+extern float fCurError;
+extern float fPreError;
 /***********************************************
 说明：保存冷浴温度上/下限
 ***********************************************/
@@ -113,20 +127,31 @@ extern unsigned char ucP3;
 extern unsigned char ucP4;
 extern unsigned char ucLow;
 extern unsigned char ucHigh;
-extern unsigned int uiStreamCorrect1;
-extern unsigned int uiStreamCorrect2;
-extern unsigned int uiCondensorCorrect;
-extern unsigned int uiAtmCorrect;
-extern unsigned char ucAuxtemp;
-extern unsigned char ucJingbuTemp;
-
+extern float 	fStreamCorrect;
+extern float 	fCondensorCorrect;
+extern float 	fAtmCorrect;
+extern float 	fJingbuTemp;
 /***********************************************
 说明：初馏点，终馏点是否出现的状态
 ***********************************************/
-extern unsigned char ucFirstPoint,ucLastPoint;
-extern float fTempTemp;
-extern float fFirstPontTemp;
-extern unsigned char ucisSendFirstPoint;
-extern float fLastPointTemp;//干点（终馏点温度值）
-extern unsigned int uiLastPointTime;//在三分钟内，没有新的回收滴，则最后一滴为干点
+extern bit SHAOPING_OPEN;
+
+extern bit bFirstPoint;
+extern bit bLastPoint;
+extern bit allowFirstPoint;
+extern bit bSendFirstPoint;
+
+extern float 	fFirstPontTemp;
+extern int 		iFirstPointDelay;
+extern int 		iFirst300Delay;
+
+
+extern int 						volumnThresholdForLastpoint;
+extern int 						iLastPointDelayThreashold;
+extern float 					fMaxTemp;
+extern bit						bSendLastPoint;
+extern float 					fLastPointTemp;//干点（终馏点温度值）
+extern unsigned int 	uiLastPointTime;//在三分钟内，没有新的回收滴，则最后一滴为干点
+
+extern int 						iCoolingDelay;
 #endif 

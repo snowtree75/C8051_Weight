@@ -38,8 +38,8 @@ void Timer01Init()
 	
 	TMOD = 0x21;    // 定时器0工作在方式1下，即16为手工装填方式；
 									// 定时器1工作在方式2下，即8位自动装填方式，为UART0提供波特率
-	TCON = 0x00;    // 定时器0和1都没有启动，在第一个任务中启动 
-	
+	TCON = 0x05;    // 定时器0和1都没有启动，在第一个任务中启动 
+	ET0  = 1;
 	
 	TH0 = 0x70;     // Timer 0 High Byte
 	TL0 = 0x00;     // Timer 0 Low Byte
@@ -48,6 +48,7 @@ void Timer01Init()
 	TL1 = Baute57600;
 	
 	TR1	= 1; 
+	
 	SFRPAGE = SFRPAGE_SAVE;     
 } 
 /**********************************************************
@@ -167,7 +168,22 @@ void TMR4_ISR(void) interrupt  16
 	
 	if(count++ == 2671){
 		count = 0;
-		ulDeviceCount++;
+		ulCountTime++;
+		//buzzer();
+		
+		if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER){
+				//1计算回收速度
+				fCurVelocity = (fCurPureWeight - fPrePureWeight) * 12;			//当前速度
+				fCurError = (fCurVelocity - 4);//速度误差,标准回收4g/min
+				if(fCurPureWeight > 5.0){					
+					uiCurPower += Fuzzy_Control(fCurError*10,(fCurError - fPreError)*10);					
+				}						
+				
+				fPrePureWeight = fCurPureWeight;
+				fPreError = fCurError;
+			}
+		
+			
 	}
 	
 	SFRPAGE = saveSFRPAGE;

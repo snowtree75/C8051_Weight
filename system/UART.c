@@ -17,6 +17,8 @@ void UART0Init(){
 
 	SFRPAGE = SFRPAGE_SAVE; 
 }	
+
+
 /**********************************************************
    串口0中断子程序
 **********************************************************/
@@ -97,35 +99,14 @@ void UART1ISR(void) interrupt  20
 				switch(ucCom1ReceiveByte[1]){
 				
 					case 0x80:
-						switch(ucCom1ReceiveByte[2]){
-							case 0x5a://复位
-								buzzer();
-								WDTCN = 0xA5;	
-								InitAllDatas();							
-							break;
-							
-							case 0x58://启动设备
-								buzzer();
-								StartDevice();
-							break;
-
-							case 0x52:		
-								buzzer();								
-								sendcom0(0x54);//给天平发送'T',去皮
-								sendcom0(0x0D);//CR
-								sendcom0(0x0A);//LF
-							break;
-							
-							case 0x53:
-								buzzer();
-								fTotalWeight = fCurWeight;//当前重量为总重量，需要修改
-							break;
-						}
+						currentCommand = ucCom1ReceiveByte[2];
 						break;
 						
-				 case 0x81://上位机传递的参数
-							buzzer();
-							InitAllDatas();
+				  case 0x81://上位机传递的参数
+						currentCommand = ucCom1ReceiveByte[2];
+						buzzer();
+							
+							/*InitAllDatas();
 				 
 							ucMethod = ucCom1ReceiveByte[2];
 							ucP1 = ucCom1ReceiveByte[3];
@@ -157,7 +138,7 @@ void UART1ISR(void) interrupt  20
 							uiPower3 = ucP3;
 							uiPower4 = ucP4;
 							fTotalWeight = ucJingbuTemp;
-							updateDensor();
+							updateDensor();*/
 						break;
 					
 				}
@@ -171,30 +152,42 @@ void UART1ISR(void) interrupt  20
 void sendcom1computer_byte(unsigned char dat)
 {
 	unsigned char SFRPAGE_SAVE = SFRPAGE;//向串口1发送一个字节
-	SFRPAGE=UART1_PAGE;
-	SBUF1=dat;
+	SFRPAGE = UART1_PAGE;
+	SBUF1 = dat;
 	while(TI1 == 0);        //等待发送完毕
 	TI1= 0;
 	SFRPAGE = SFRPAGE_SAVE;
 }
 
 void sendscom1computer(void *ptr,unsigned int n){
-	unsigned char SFRPAGE_SAVE = SFRPAGE; //向串口0发送多个字节(T3，为定时器)
-	unsigned char *p=(unsigned int *)ptr;
-	while(n--){
-		SFRPAGE = UART1_PAGE;
-		SBUF1=*(p++);
+	unsigned char SFRPAGE_SAVE = SFRPAGE; //向串口0发送多个字节(T3，为定时器)	
+	unsigned char *p = (unsigned char *)ptr;
+	SFRPAGE = UART1_PAGE;
+	while(n--){		
+		SBUF1 = *p;
 		while(TI1 == 0);        //等待发送完毕
 		TI1= 0;
+		p++;
 	}                //软件清零
 	SFRPAGE = SFRPAGE_SAVE; 
 }
 
 void sendcom1computer_float(unsigned int mod,float dat)
 { 
+	unsigned char a,b,c,d;
+	unsigned char* ptr = (unsigned char*)&dat;
+	a = *ptr;ptr++;
+	b = *ptr;ptr++;
+	c = *ptr;ptr++;
+	d = *ptr;
+	
 	sendcom1computer_byte(0xaa);   
 	sendcom1computer_byte(mod); 
-	sendscom1computer(&dat,sizeof(float));
+	//sendscom1computer(&dat,sizeof(float));
+	sendcom1computer_byte(a); 
+	sendcom1computer_byte(b); 
+	sendcom1computer_byte(c); 
+	sendcom1computer_byte(d); 
 	sendcom1computer_byte(0xcc);  
 	sendcom1computer_byte(0x33);  
 	sendcom1computer_byte(0xc3);  

@@ -33,39 +33,56 @@ sbit    CS2=P1^3; //AD7714片选
 sbit    CS3=P1^4; //AD7714片选
 sbit    CS4=P4^0; //AD7714片选
 sbit    CS5=P4^1; //AD7714片选
-//===============================================
-//sbit    PULSE1=P2^7;       
-sbit    diguanheat=P2^7;   
+//===============================================    
+sbit    diguanheat							=	P2^7;   
 
-sbit    DIR1=P1^5; //步进电机PULL
-
-sbit    DIR0=P1^6;//步进电机DIR
-sbit    PULSE0=P1^7;//步进电机PULL
-sbit   	BUZZ=P4^3;//蜂鸣器
-sbit    TRACING0reset=P3^7;   //电机复位检测
+sbit    DIR1										=	P1^5; //步进电机PULL
+sbit   	shaoping_mor_PIN				= P1^5; //shaoping motor
+sbit    DIR0										=	P1^6; //步进电机DIR
+sbit    PULSE0									=	P1^7; //步进电机PULL
+sbit   	BUZZ										=	P4^3; //蜂鸣器
+sbit    TRACING0reset						= P3^7; //电机复位检测
+sbit    shaopingresetjudge_pin	= P3^6; //电机复位检测
 //===============================================
 //*************************************************
 //------------此二脚在电路板上标反-----------------
 
-sbit 	LOOPmor							= P2^0;    //  
-sbit 	liangtongheat				= P2^1;//继电器
-sbit 	shaopingheat_PIN		= P2^2;//继电器
-sbit 	COMPRESSOR					= P2^3; //压缩机
-sbit 	FAN0								= P2^4;//继电器     风扇
-sbit 	FURNACE0						= P2^5;//继电器 炉子
-sbit 	waterHEATER					= P2^6;// 电热棒 
+sbit 	LOOPmor										= P2^0;    //  
+sbit 	liangtongheat							= P2^1;		//继电器
+sbit 	shaopingheat_PIN					= P2^2;		//继电器
+sbit 	COMPRESSOR								= P2^3; 	//压缩机
+sbit 	FAN0											= P2^4;		//继电器     风扇
+sbit 	FURNACE0									= P2^5;		//继电器 炉子
+sbit 	waterHEATER								= P2^6;		//电热棒 
+
 
 ////////////////////////////////////////////////////
+#define SUCCESS	0
+#define FAILURE 1
 
-		
+///////////////////////////////////////////////	
+#define IDLE 0x00
+#define SZCC 0x52
+#define SVCC 0x53
+#define SSAC 0x58
+#define SSTC 0x59
+#define SSPC 0x81
+#define SRST 0x5a
+#define SFW1 0x41
+#define SFW2 0x9c
+#define SVSC 0xa1
+
+//////////////////////////////////
+
 #define CATM 0x90//
 #define CRHT 0x96
 #define CCLT 0x92
 #define CVIF 0x94
 #define CRVL 0x95
 #define CFPT 0x81
+#define CFPD 0x82
 #define CLPT 0x87
-#define CCTM	0x9a
+#define CCTM 0x9a
 #define CSGT 0x91
 #define CFIF 0x93
 #define CFPP 0x98
@@ -85,18 +102,19 @@ sbit 	waterHEATER					= P2^6;// 电热棒
 // 定义每一个7714传感器对应的温度
 #define 				DEVICEP1STREAMTEMP		0
 #define 				DEVICEDENSORTEMP			1
-#define 				DEVICEP2STREAMTEMP		2
+#define 				RETRIEVEROOMTTEMP 		2
+#define 				NECKTEMP							3
 
 //===============================================
 // 定义仪器的工作状态
-#define 				FIRST300SECONDHEATING			1
-#define 				F300SECOND2FIRSTPOINT			2
-#define 				FIRSTPOINT2VOLUMN96PER		3
-#define 				VOLUMN96PER2LASTPOINT			4
-#define 				CABLIRATEZEROPOINT				5
-#define 				CABLIRATEVOLUMN						6
+#define 				READY											0
+#define 				CABLIRATEZEROPOINT				1
+#define 				CABLIRATEVOLUMN						2
+#define 				FIRST300SECONDHEATING			3
+#define 				F300SECOND2FIRSTPOINT			4
+#define 				FIRSTPOINT2VOLUMN96PER		5
+#define 				VOLUMN96PER2LASTPOINT			6
 #define 				DEVICECOOLING							7
-#define 				READY											8
-#define 				CRYOSTATING								9
-#define 				ERROR											0
+#define 				CRYOSTATING								8
+#define 				ERROR											9
 #endif

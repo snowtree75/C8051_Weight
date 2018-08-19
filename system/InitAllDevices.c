@@ -94,9 +94,17 @@ void InitAllDatas(void){
 	/***********************************************
 	说明：初馏点，终馏点是否出现的状态
 	***********************************************/
-	ucFirstPoint = 0;
-	ucLastPoint = 0;
-	fTempTemp = -100;
+	bFirstPoint = 0;
+	allowFirstPoint = 0;
+	bLastPoint = 0;
+	iFirst300Delay = 300;
 	fFirstPontTemp = 0;
-	ucisSendFirstPoint = 0;
+	bSendFirstPoint = 0;
+	
+	volumnThresholdForLastpoint = 94;
+	fMaxTemp = -100.0;	
+	iLastPointDelayThreashold = 180;
+	bSendLastPoint = 0;
+	
+	iCoolingDelay = 180;
 }

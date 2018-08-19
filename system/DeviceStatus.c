@@ -2,14 +2,11 @@
 说明：为了显示单片机与上位机的通信状态，使用一个
 			连续计数的变量
 ***********************************************/
-unsigned long ulDeviceCount = 0;// one second
 
 /***********************************************
 说明：for Timer 
 ***********************************************/
 unsigned long count = 0;
-
-
 /***********************************************
 说明：保证的板载CPS120传感器测量的大气压强与温度值
 
@@ -52,9 +49,15 @@ unsigned char		ucCom1ReceivePointer;
 说明：保存着通过串口0发来的称重重量数据
 ***********************************************/
 float		fTotalWeight;//样品的总重量
+float 	fFlask1Weight;
+float 	fFlask2Weight;
+float		fCurPurePervious100Weight;
+float 	fCurPureNext100Weight;
 float		fCurWeight; 	//回收液体的重量
 float   fCurWeightPer; // 回收液体的重量占总重量百分比
 
+float 		fCurPureWeight;
+float 		fCurPurePervious100Weight;
 /***********************************************
 说明：保存着通过串口1发来的加热炉子功率
 ***********************************************/
@@ -74,7 +77,10 @@ unsigned int uiPower4;
 unsigned char ucCurDeviceStatus;
 unsigned long	ulCountTime;
 unsigned long ulFirstPointPeroid;
-
+unsigned char	currentCommand;
+bit furnanceWorking;
+bit cryostatWorking;
+bit fanWorking;
 /***********************************************
 说明：保存着仪器PID控制变量
 ***********************************************/
@@ -87,6 +93,10 @@ unsigned long ulTime[10];
 unsigned char ucPointer;
 
 float fVelocity;//滴速，滴/分钟
+
+float fPrePureWeight = 0;
+float fCurVelocity;
+float fCurError,fPreError;
 
 /***********************************************
 说明：保存冷浴温度上/下限
@@ -115,21 +125,31 @@ unsigned char ucP3;
 unsigned char ucP4;
 unsigned char ucLow;
 unsigned char ucHigh;
-unsigned int uiStreamCorrect1;
-unsigned int uiStreamCorrect2;
-unsigned int uiCondensorCorrect;
-unsigned int uiAtmCorrect;
-unsigned char ucAuxtemp;
-unsigned char ucJingbuTemp;
-
+float 	fStreamCorrect;
+float 	fCondensorCorrect;
+float 	fAtmCorrect;
+float 	fJingbuTemp;
+unsigned char parameterBuffer[256];
 /***********************************************
 说明：初馏点，终馏点是否出现的状态
 ***********************************************/
-/*
-unsigned char ucFirstPoint,ucLastPoint;
-float fTempTemp;//临时温度，找寻终馏点
-float fFirstPontTemp;
-unsigned char ucisSendFirstPoint;
-float fLastPointTemp;//干点（终馏点温度值）
+bit 		SHAOPING_OPEN = 1;
+
+bit 		bFirstPoint;
+bit 		allowFirstPoint;
+float 	fFirstPontTemp;
+int 		iFirstPointDelay;
+int 		iFirst300Delay;
+
+bit 		bLastPoint;
+bit 		bSendFirstPoint;
+
+int 		volumnThresholdForLastpoint;
+int 		iLastPointDelayThreashold;
+bit 		bSendLastPoint;
+int 		iCoolingDelay;
+
+float 	fMaxTemp;//临时温度，找寻终馏点
+float 	fLastPointTemp;//干点（终馏点温度值）
 unsigned int uiLastPointTime;//在三分钟内，没有新的回收滴，则最后一滴为干点
-*/
+

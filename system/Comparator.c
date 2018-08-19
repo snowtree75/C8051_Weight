@@ -49,10 +49,12 @@ int i;
 	if(CP1FIF){
 		CP1RIF=0;
 		CP1FIF=0;
-		//buzzer();			 
-
+		
+		if((ucCurDeviceStatus == FIRST300SECONDHEATING || ucCurDeviceStatus == F300SECOND2FIRSTPOINT) && allowFirstPoint){
+			bFirstPoint = 1;
+		}
 	}
-	SFRPAGE=saveSFRPAGE;
+	SFRPAGE = saveSFRPAGE;
  }
  
 void COMP1ISR1(void){//比较器1上升沿中断 P1管 初始点红外检测
