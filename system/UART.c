@@ -136,57 +136,19 @@ void UART1ISR(void) interrupt  20
 	if(RI1){
 		RI1=0;
 		ucCom1ReceiveByte[ucCom1ReceivePointer] = SBUF1;
+		buzzer();
+		
 		if(ucCom1ReceiveByte[0] == 0xAA)
 		{
 			ucCom1ReceivePointer++; 
-			if(ucCom1ReceiveByte[ucCom1ReceivePointer-1] == 0xFF && ucCom1ReceiveByte[0] == 0xAA)		
+			if(  ucCom1ReceiveByte[ucCom1ReceivePointer - 1] == 0x3c 
+				&& ucCom1ReceiveByte[ucCom1ReceivePointer - 2] == 0xc3
+				&& ucCom1ReceiveByte[ucCom1ReceivePointer - 3] == 0x33
+			  && ucCom1ReceiveByte[ucCom1ReceivePointer - 4] == 0xcc
+			  && ucCom1ReceiveByte[0] == 0xAA)		
 			{
-				switch(ucCom1ReceiveByte[1]){
-				
-					case 0x80:
-						currentCommand = ucCom1ReceiveByte[2];
-						break;
-						
-				  case 0x81://上位机传递的参数
-						currentCommand = ucCom1ReceiveByte[2];
-						
-							
-							/*InitAllDatas();
-				 
-							ucMethod = ucCom1ReceiveByte[2];
-							ucP1 = ucCom1ReceiveByte[3];
-							ucP2 = ucCom1ReceiveByte[4];
-							ucP3 = ucCom1ReceiveByte[5];
-							ucP4 = ucCom1ReceiveByte[6];
-							ucLow = ucCom1ReceiveByte[7];
-							ucHigh = ucCom1ReceiveByte[8];
-							uiStreamCorrect1 = ucCom1ReceiveByte[9];
-							uiStreamCorrect1 <<= 8;
-							uiStreamCorrect1 += ucCom1ReceiveByte[10];
-							uiStreamCorrect2 = ucCom1ReceiveByte[11];
-							uiStreamCorrect2 <<= 8;
-							uiStreamCorrect2 += ucCom1ReceiveByte[12];
-							uiCondensorCorrect = ucCom1ReceiveByte[13];
-							uiCondensorCorrect <<= 8;
-							uiCondensorCorrect += ucCom1ReceiveByte[14];
-							uiAtmCorrect = ucCom1ReceiveByte[15];
-							uiAtmCorrect <<= 8;
-							uiAtmCorrect += ucCom1ReceiveByte[16];
-							ucAuxtemp = ucCom1ReceiveByte[17];
-							ucJingbuTemp = ucCom1ReceiveByte[18];
-							
-							/////////////////////////////////////////
-							iCryostatHigh = ucHigh;
-							iCryostatLow = ucLow;
-							uiPower1 = ucP1;
-							uiPower2 = ucP2;
-							uiPower3 = ucP3;
-							uiPower4 = ucP4;
-							fTotalWeight = ucJingbuTemp;
-							updateDensor();*/
-						break;
-					
-				}
+				buzzer();
+				currentCommand = ucCom1ReceiveByte[2];
 				ucCom1ReceivePointer = 0;
 			}	
 		}

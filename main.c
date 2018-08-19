@@ -251,13 +251,10 @@ void parseParameter(){
 	ucP4 									= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	ucLow 								= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	ucHigh 								= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	ucP4 									= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fStreamCorrect 				= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	fCondensorCorrect 		= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fAtmCorrect 					= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fJingbuTemp						= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fTotalWeight				  = byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	
 	
 	iCryostatHigh 				= ucHigh;
 	iCryostatLow 					= ucLow;
@@ -269,6 +266,7 @@ void parseParameter(){
 }
 
 void mainControl(void){
+	
 	
 	switch(currentCommand){
 		case SZCC : // zero correcting
@@ -287,39 +285,46 @@ void mainControl(void){
 				}
 			break;
 		
+		case SSPC : // send parameter		
+				buzzer();
+				parseParameter();
+				currentCommand = IDLE;
+			break;
+		
 		case SSAC : // start test
+				buzzer();
 				cryostatWorking = 1;// start Cryostat
 				currentCommand = IDLE;
 			break;
 		
 		case SSTC : // stop test		
+				buzzer();
 				cryostatWorking = 0;
 				furnanceWorking = 0;		
 				currentCommand = IDLE;
 			break;
 		
-		case SSPC : // send parameter
-				parseParameter();
-				currentCommand = IDLE;
-			break;
-		
 		case SRST : // reset device
+				buzzer();
+				WDTCN = 0xA5;
 				cryostatWorking = 0;
 				furnanceWorking = 0;
 				currentCommand = IDLE;
 			break;
 		
 		case SFW1 : // flask1 weight
+				buzzer();
 				fFlask1Weight = fCurWeight;
 				fFlask2Weight = fFlask1Weight;
 				currentCommand = IDLE;
 			break;
 		
 		case SFW2 : // flask2 weight
+				buzzer();
 				fFlask2Weight = fCurWeight;
 				currentCommand = IDLE;
 			break;
-		
+	
 		case SVSC : // volumn step count			
 				currentCommand = IDLE;
 			break;
@@ -327,13 +332,13 @@ void mainControl(void){
 		case IDLE:
 				idleTask();
 			break;
-		
+			
 		default:
 			break;
 	}
 	
 }
-int index = 0;
+
 void sendMeasurement(void){
 	sendcom1computer_float(CCTM,(int)ulCountTime);// send one second as counter
 	
