@@ -83,7 +83,52 @@ void UART1Init()
     //SSTA1     = 0x0A;   只有T1 可做波特率
 	SFRPAGE = SFRPAGE_SAVE; 
 }
-unsigned int s;
+
+
+
+
+/**********************************************************
+   串口0中断子程序
+**********************************************************/
+unsigned int 	w;
+char					pos = 1;
+unsigned char ch;
+void UART0_ISR(void) interrupt  4
+{//串口0中断
+	unsigned char  saveSFRPAGE=SFRPAGE;
+	SFRPAGE = UART0_PAGE;
+	if(RI0){
+		RI0 = 0;
+		ch = SBUF0;
+		w <<= 8;
+		w |= ch;
+		//buzzer();
+		if(w == 0x0D0A)//CR LF 表示收到一个指令的结束符号
+		{
+			//if(ucCom0ReceivePointer > 18)//取15 为收到指令的长度，有点牵强 
+			{
+				ucCom0ReceiveByte[pos - 1]='\0';
+				fCurWeight = atof(ucCom0ReceiveByte);		
+			}	
+			ucCom0ReceivePointer = 0;
+			
+			// for balance on & off
+			tianping_status = 1;
+			second = 0;
+		}else{
+			if(ch == 0x67){//'g'
+				pos = ucCom0ReceivePointer;
+			}
+			ucCom0ReceiveByte[ucCom0ReceivePointer++] = ch;
+		}
+
+	}
+	SFRPAGE = saveSFRPAGE;
+}
+
+/**********************************************************
+   串口1中断子程序
+**********************************************************/
 void UART1ISR(void) interrupt  20
 {
 	unsigned char  saveSFRPAGE = SFRPAGE;
@@ -104,7 +149,7 @@ void UART1ISR(void) interrupt  20
 						
 				  case 0x81://上位机传递的参数
 						currentCommand = ucCom1ReceiveByte[2];
-						buzzer();
+						
 							
 							/*InitAllDatas();
 				 
@@ -157,19 +202,6 @@ void sendcom1computer_byte(unsigned char dat)
 	while(TI1 == 0);        //等待发送完毕
 	TI1= 0;
 	SFRPAGE = SFRPAGE_SAVE;
-}
-
-void sendscom1computer(void *ptr,unsigned int n){
-	unsigned char SFRPAGE_SAVE = SFRPAGE; //向串口0发送多个字节(T3，为定时器)	
-	unsigned char *p = (unsigned char *)ptr;
-	SFRPAGE = UART1_PAGE;
-	while(n--){		
-		SBUF1 = *p;
-		while(TI1 == 0);        //等待发送完毕
-		TI1= 0;
-		p++;
-	}                //软件清零
-	SFRPAGE = SFRPAGE_SAVE; 
 }
 
 void sendcom1computer_float(unsigned int mod,float dat)

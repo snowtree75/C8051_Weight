@@ -272,6 +272,7 @@ void mainControl(void){
 	
 	switch(currentCommand){
 		case SZCC : // zero correcting
+				buzzer();
 				if(SUCCESS == zeroCorrect()){
 					currentCommand = IDLE;
 					ucCurDeviceStatus = CABLIRATEZEROPOINT;
@@ -279,6 +280,7 @@ void mainControl(void){
 			break;
 
 		case SVCC : // volumn correcting 
+				buzzer();
 				if(SUCCESS == volumnCorrect()){
 					currentCommand = IDLE;
 					ucCurDeviceStatus = CABLIRATEVOLUMN;
@@ -357,7 +359,8 @@ void sendMeasurement(void){
 	sendcom1computer_float(CSMW,fTotalWeight);
 	sendcom1computer_float(CFPP,uiCurPower);
 	//sendcom1computer_float(CDLV,vari.COMP0drops);
-
+	sendcom1computer_float(CBOF,tianping_status);
+ 
 	sendcom1computer_float(CSTA,ucCurDeviceStatus);// send device status
 	
 }

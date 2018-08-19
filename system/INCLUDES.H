@@ -2,8 +2,11 @@
 #define __INCLUDES_H__
 
 #include <C8051F120.H>
-#include <STRING.H>
+#include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <intrins.h>
+#include <string.h>
 #include "types.h"
 #include "config.h"
 #include "miscellaneous.h"

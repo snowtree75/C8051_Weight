@@ -183,7 +183,13 @@ void TMR4_ISR(void) interrupt  16
 				fPreError = fCurError;
 			}
 		
-			
+		// for balance on & off
+		second++;//一秒
+		if(tianping_status && (second==5)){//5秒进入一次
+			tianping_status = 0;
+			second = 0;			
+		}
+		
 	}
 	
 	SFRPAGE = saveSFRPAGE;

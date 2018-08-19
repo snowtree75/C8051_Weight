@@ -81,6 +81,8 @@ unsigned char	currentCommand;
 bit furnanceWorking;
 bit cryostatWorking;
 bit fanWorking;
+unsigned char  tianping_status;
+unsigned char 	second;
 /***********************************************
 说明：保存着仪器PID控制变量
 ***********************************************/
