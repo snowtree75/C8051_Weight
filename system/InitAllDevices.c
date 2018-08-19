@@ -91,6 +91,19 @@ void InitAllDatas(void){
 	
 	memset(ulTimes,0,3*sizeof(long));
 	memset(fTemperatures,0,3*sizeof(float));	
+	/**********************************************/
+	fFlask1Weight = 0;
+	fFlask2Weight = 0;
+	fTotalWeight = 0;
+	fCurPurePervious100Weight = 0;
+	fCurPureNext100Weight = 0;
+	fCurWeight = 0;
+	fCurWeightPer = 0;
+	fCurPureWeight = 0;
+	fCurPurePervious100Weight = 0;
+	
+	/**********************************************/
+	
 	/***********************************************
 	说明：初馏点，终馏点是否出现的状态
 	***********************************************/
