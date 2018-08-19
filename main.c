@@ -312,21 +312,21 @@ void mainControl(void){
 				currentCommand = IDLE;
 			break;
 		
-		case SFW1 : // flask1 weight
-				buzzer();
+		case SFW1 : // flask1 weight				
 				fFlask1Weight = fCurWeight;
 				fFlask2Weight = fFlask1Weight;
+				buzzer();
 				currentCommand = IDLE;
 			break;
 		
-		case SFW2 : // flask2 weight
-				buzzer();
+		case SFW2 : // flask2 weight				
 				fFlask2Weight = fCurWeight;
 				currentCommand = IDLE;
 			break;
 	
 		case SVSC : // volumn step count			
 				currentCommand = IDLE;
+				buzzer();
 			break;
 		
 		case IDLE:

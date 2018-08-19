@@ -136,7 +136,6 @@ void UART1ISR(void) interrupt  20
 	if(RI1){
 		RI1=0;
 		ucCom1ReceiveByte[ucCom1ReceivePointer] = SBUF1;
-		buzzer();
 		
 		if(ucCom1ReceiveByte[0] == 0xAA)
 		{
