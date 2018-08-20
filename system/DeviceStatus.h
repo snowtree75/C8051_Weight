@@ -148,7 +148,10 @@ extern int 		iMaxStreamTemperature;
 extern int 		iDryPointDelay;
 extern int 		iVolumnDelay;
 
+extern float 	fRetrieveVolecity;
+
 extern float 					fMaxTemp;
+extern unsigned int 	uiTempPower;//临时功率变量，调整功率用
 extern bit						bSendLastPoint;
 extern float 					fLastPointTemp;//干点（终馏点温度值）
 extern unsigned int 	uiLastPointTime;//在三分钟内，没有新的回收滴，则最后一滴为干点

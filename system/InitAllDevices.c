@@ -113,6 +113,8 @@ void InitDeviceStatus(void){
 	currentCommand = IDLE;
 	
 	allowFirstPoint = 1;
+	
+	uiTempPower			= uiPower3;
 }
 
 
@@ -123,6 +125,7 @@ void InitAllDatas(void){
 	uiPower1 							= 45;
 	uiPower2 							= 50;
 	uiPower3 							= 50;
+	uiTempPower						= uiPower3;
 	uiPower4 							= 50;
 	iCryostatLow  				= 10;
 	iCryostatHigh 				= 70;
@@ -139,7 +142,7 @@ void InitAllDatas(void){
 	iDryPointDelay								= 30;
 	iVolumnDelay 									= 30;
 	
-	
+	fRetrieveVolecity							= 4.5;
 	////////////////////////////////////////////////////
 	// 这部分的考虑是为了防止上下限太小了，避免频繁启动压缩机
 	Delta = iCryostatHigh - iCryostatLow;

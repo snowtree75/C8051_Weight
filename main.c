@@ -1,6 +1,5 @@
 #include "system/includes.h"
 
-unsigned int uiTempPower;//临时功率变量，调整功率用
 
 void obtainMeasurement(void){
 	getPressData();
@@ -41,8 +40,8 @@ void TaskControlFurnace()
 			break;
 			
 			case FIRSTPOINT2VOLUMN96PER:
-				uiCurPower = uiPower3; //功率调整前
-				//uiCurPower = uiTempPower;//功率调整后
+				//uiCurPower = uiPower3; //功率调不调整
+				uiCurPower = uiTempPower;//功率调整
 			break;
 			
 			case VOLUMN96PER2LASTPOINT:
@@ -309,8 +308,12 @@ void parseParameter(){
 	iLastPointDelayThreashold								= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	iMaxStreamTemperature				  					= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	iDryPointDelay 													= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	iVolumnDelay 														= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
+	iVolumnDelay 														= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	
+	fRetrieveVolecity												= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
+	
+	// 给功率调整使用
+	uiTempPower						= uiPower3;
 	updateDensor();	
 }
 
