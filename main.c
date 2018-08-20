@@ -122,7 +122,10 @@ void TaskControlCryostat()
 *********************************************/
 void TaskControlNeck(void)
 { 
-	if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER)
+	// shaopingresetjudge_pin = 1 表示挡片没有遮挡
+	// shaoping_mor_PIN = 0 表示开启
+	
+	/*if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER)
 	{	
 	
 		if(!shaopingresetjudge_pin)		 //end
@@ -144,7 +147,36 @@ void TaskControlNeck(void)
 		else{
 			shaopingheat_PIN = 1 ;
 		}
-	}	   	   	   
+	}	
+
+	if(ucCurDeviceStatus == READY){
+		if(shaopingresetjudge_pin){
+			SHAOPING_OPEN = 1;//open shaoping jia
+			shaopingheat_PIN = 1;// stop heat		
+			shaoping_mor_PIN = 0;//open motor
+		}
+		else	 //end
+		{
+			shaoping_mor_PIN = 1;// close motor
+			SHAOPING_OPEN = 0; // 
+		}
+	}
+	*/
+	
+	if(fDeviceTemperature[NECKTEMP] > fJingbuTemp){
+		SHAOPING_OPEN = 0;//设置打开信号
+	}
+	
+	if(!SHAOPING_OPEN){//没有打开的话，
+		
+		if(shaopingresetjudge_pin){
+			shaoping_mor_PIN = 0;//打开马达
+		}else{
+			shaoping_mor_PIN = 1;// 关闭马达
+			SHAOPING_OPEN = 1;//设置为打开
+			shaopingheat_PIN = 1;//关闭烧瓶颈部加热
+		}		
+	}
 }
 
 

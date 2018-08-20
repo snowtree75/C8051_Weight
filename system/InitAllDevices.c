@@ -115,6 +115,8 @@ void InitDeviceStatus(void){
 	allowFirstPoint = 1;
 	
 	uiTempPower			= uiPower3;
+	
+	SHAOPING_OPEN = 0;//默认打开烧瓶夹子
 }
 
 

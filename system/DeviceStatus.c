@@ -129,7 +129,7 @@ unsigned char parameterBuffer[256];
 /***********************************************
 说明：初馏点，终馏点是否出现的状态
 ***********************************************/
-bit 		SHAOPING_OPEN = 1;
+bit 		SHAOPING_OPEN = 0;
 
 bit 		bFirstPoint;
 bit 		allowFirstPoint;
