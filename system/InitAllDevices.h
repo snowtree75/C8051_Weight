@@ -25,4 +25,6 @@ void Init_Device(void);
 ********************************************************/
 void InitAllDatas(void);
 
+void InitDeviceStatus(void);
+
 #endif

@@ -32,7 +32,7 @@ void getPressData(void)                      //获取大气压值
 				ulDeviceTempture >>= 14;
 				ulDeviceTempture-=4000;
 				ulDeviceTempture /=10;
-				fDeviceTempture = ulDeviceTempture * 0.1f;
+				fDeviceTempture = ulDeviceTempture * 0.1f + fAtmCorrect;
        }  
   }
 	else 
@@ -88,3 +88,13 @@ void updateDensor(){
 		iCryostat25per = iCryostatLow + Delta/4;
 		iCryostat75per = iCryostatHigh - Delta/4;
 }
+
+ unsigned char generateCRC(unsigned char* ptr,int len){
+	 unsigned char crc = 0x00;
+	 int i;
+	 for(i=0;i<len;i++,ptr++){
+		 crc ^= (*ptr);
+	 }
+	 
+	 return crc;
+ }

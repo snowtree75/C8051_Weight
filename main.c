@@ -60,7 +60,10 @@ void TaskControlFurnace()
 		}else{
 			FURNACE0 = 1;//关闭加热炉子
 		}
-	}    
+	}else{
+		uiCurPower = 0;
+		FURNACE0 = 1;//关闭加热炉子
+	}
 }
 
 /********************************************
@@ -72,7 +75,7 @@ void TaskControlCryostat()
 	if(cryostatWorking){
 
 		read7714tempratuer(DEVICEDENSORTEMP);
-		if(		 ucCurDeviceStatus == READY //如果仪器不需要制冷或加热，冷浴正常就满足要求的话，直接开始工作
+		if(		 (ucCurDeviceStatus == READY || ucCurDeviceStatus == CABLIRATEZEROPOINT || ucCurDeviceStatus == CABLIRATEVOLUMN)//如果仪器不需要制冷或加热，冷浴正常就满足要求的话，直接开始工作
 				&& fDeviceTemperature[DEVICEDENSORTEMP] < iCryostat75per 
 				&& fDeviceTemperature[DEVICEDENSORTEMP] > iCryostat25per){
 				ucCurDeviceStatus = FIRST300SECONDHEATING;
@@ -92,20 +95,27 @@ void TaskControlCryostat()
 				}else{
 					if(fDeviceTemperature[DEVICEDENSORTEMP] > iCryostat75per ){ //利用绝对范围
 							COMPRESSOR = 0;
-							if(ucCurDeviceStatus == READY){
+							waterHEATER = 1;
+							if(ucCurDeviceStatus == READY || ucCurDeviceStatus == CABLIRATEZEROPOINT || ucCurDeviceStatus == CABLIRATEVOLUMN){
 								ucCurDeviceStatus = CRYOSTATING;
+								ulCountTime = 0;
 							}
 					}
 					
 					if(fDeviceTemperature[DEVICEDENSORTEMP] < iCryostat25per ){
 						waterHEATER = 0;
-						if(ucCurDeviceStatus == READY){
+						COMPRESSOR = 1;
+						if(ucCurDeviceStatus == READY || ucCurDeviceStatus == CABLIRATEZEROPOINT || ucCurDeviceStatus == CABLIRATEVOLUMN){
 							ucCurDeviceStatus = CRYOSTATING;
+							ulCountTime = 0;
 						}		
 					}
 					
 			}
-	}    
+		} else{
+			COMPRESSOR = 1;
+			waterHEATER = 1;
+		}
 }
 /********************************************
 	名称：neckControl
@@ -148,6 +158,7 @@ void idleTask(void){
 					fFirstPontTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
 					iFirstPointDelay = ulCountTime;
 					if(!bSendFirstPoint){
+						buzzer();
 						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
 						sendcom1computer_float(CFPD,ulCountTime); //发送初馏点delay	
 						bSendFirstPoint = 1;						
@@ -155,6 +166,7 @@ void idleTask(void){
 				}else{
 					if(ulCountTime >= iFirst300Delay){
 						ucCurDeviceStatus = F300SECOND2FIRSTPOINT;
+						buzzer();
 					}
 				}
 				break;
@@ -162,6 +174,7 @@ void idleTask(void){
 			case F300SECOND2FIRSTPOINT:
 				if(bFirstPoint){
 					ucCurDeviceStatus = FIRSTPOINT2VOLUMN96PER;
+					buzzer();
 					bFirstPoint = 0;
 					fFirstPontTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
 					iFirstPointDelay = ulCountTime;
@@ -169,9 +182,37 @@ void idleTask(void){
 				break;
 				
 			case FIRSTPOINT2VOLUMN96PER:
-				if(fCurWeightPer > volumnThresholdForLastpoint){
+				if(fCurWeightPer > iVolumnThresholdForLastpoint){//iVolumnThresholdForLastpoint
 					ucCurDeviceStatus = VOLUMN96PER2LASTPOINT;
+					buzzer();
 					ulCountTime = 0;
+					fMaxTemp = -1;
+				}else{
+					if(fDeviceTemperature[DEVICEP1STREAMTEMP] >= iMaxStreamTemperature){			// to max stream,test stop			
+						currentCommand = SSTC;
+						buzzer();
+						ulCountTime = 0;
+						ucCurDeviceStatus = DEVICECOOLING;//
+					}
+					
+					if(fMaxTemp < fDeviceTemperature[DEVICEP1STREAMTEMP]){
+						fMaxTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
+					}
+					
+					if(fMaxTemp > fDeviceTemperature[DEVICEP1STREAMTEMP] + iLastPointFindThreshold){// down 20C, test stop
+							bLastPoint = 1;
+						
+							fLastPointTemp = fMaxTemp;
+							if(!bSendLastPoint){
+								sendcom1computer_float(CLPT,fLastPointTemp); //发送zhong馏点
+								bSendLastPoint = 1;						
+							}
+							furnanceWorking = 0;
+							cryostatWorking = 0;
+							ulCountTime = 0;
+							ucCurDeviceStatus = DEVICECOOLING;
+							buzzer();
+					}
 				}
 				break;
 				
@@ -180,8 +221,11 @@ void idleTask(void){
 					if(fMaxTemp < fDeviceTemperature[DEVICEP1STREAMTEMP]){
 						fMaxTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
 					}
-					if(ulCountTime >= iLastPointDelayThreashold){
-						ucCurDeviceStatus = DEVICECOOLING;
+													
+					if(	ulCountTime >= iLastPointDelayThreashold 
+						|| fDeviceTemperature[DEVICEP1STREAMTEMP] >= iMaxStreamTemperature){
+						bLastPoint = 1;
+						
 						fLastPointTemp = fMaxTemp;
 						if(!bSendLastPoint){
 							sendcom1computer_float(CLPT,fLastPointTemp); //发送zhong馏点
@@ -189,14 +233,17 @@ void idleTask(void){
 						}
 						furnanceWorking = 0;
 						cryostatWorking = 0;
+						ulCountTime = 0;
+						ucCurDeviceStatus = DEVICECOOLING;
+						buzzer();
 					}
 				}
 				break;
 				
 			case DEVICECOOLING:
 				if(ulCountTime >= iCoolingDelay){
-						ucCurDeviceStatus = READY;
-						ulCountTime = 0;
+						InitDeviceStatus();
+						buzzer();
 				}
 				break;
 			
@@ -244,29 +291,30 @@ void parseParameter(){
 	int base = 3;
 	int index = 0;
 	
+
 	ucMethod 							= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	ucP1 									= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	ucP2 									= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	ucP3 									= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	ucP4 									= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	ucLow 								= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	ucHigh 								= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	uiPower1							= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	uiPower2							= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	uiPower3 							= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	uiPower4 							= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iCryostatLow 					= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iCryostatHigh 				= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fStreamCorrect 				= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fAtmCorrect 					= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fJingbuTemp						= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fTotalWeight				  = byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	
-	iCryostatHigh 				= ucHigh;
-	iCryostatLow 					= ucLow;
-	uiPower1 							= ucP1;
-	uiPower2 							= ucP2;
-	uiPower3 							= ucP3;
-	uiPower4 							= ucP4;
+	iVolumnThresholdForLastpoint 						= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iLastPointFindThreshold 								= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iLastPointDelayThreashold								= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iMaxStreamTemperature				  					= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iDryPointDelay 													= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iVolumnDelay 														= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
+	
 	updateDensor();	
 }
 
 void mainControl(void){
-	
 	
 	switch(currentCommand){
 		case SZCC : // zero correcting
@@ -298,18 +346,15 @@ void mainControl(void){
 			break;
 		
 		case SSTC : // stop test		
-				buzzer();
-				cryostatWorking = 0;
-				furnanceWorking = 0;		
+				buzzer();	
 				currentCommand = IDLE;
+				ucCurDeviceStatus = VOLUMN96PER2LASTPOINT;
+				ulCountTime = iLastPointDelayThreashold ;
 			break;
 		
 		case SRST : // reset device
 				buzzer();
 				WDTCN = 0xA5;
-				cryostatWorking = 0;
-				furnanceWorking = 0;
-				currentCommand = IDLE;
 			break;
 		
 		case SFW1 : // flask1 weight				
@@ -373,6 +418,7 @@ void sendMeasurement(void){
 void main(void){
 	Init_Device(); 
 	IE_enable(); 
+	InitDeviceStatus();
 	InitAllDatas();
 	
 	for(;;){

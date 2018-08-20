@@ -122,12 +122,6 @@ extern float	fTemperatures[3];
 说明：保存保存了上位机传递的参数
 ***********************************************/
 extern unsigned char ucMethod;
-extern unsigned char ucP1;
-extern unsigned char ucP2;
-extern unsigned char ucP3;
-extern unsigned char ucP4;
-extern unsigned char ucLow;
-extern unsigned char ucHigh;
 extern float 	fStreamCorrect;
 extern float 	fCondensorCorrect;
 extern float 	fAtmCorrect;
@@ -147,8 +141,13 @@ extern int 		iFirstPointDelay;
 extern int 		iFirst300Delay;
 
 
-extern int 						volumnThresholdForLastpoint;
-extern int 						iLastPointDelayThreashold;
+extern int 		iVolumnThresholdForLastpoint;
+extern int 		iLastPointFindThreshold;
+extern int 		iLastPointDelayThreashold;
+extern int 		iMaxStreamTemperature;
+extern int 		iDryPointDelay;
+extern int 		iVolumnDelay;
+
 extern float 					fMaxTemp;
 extern bit						bSendLastPoint;
 extern float 					fLastPointTemp;//干点（终馏点温度值）

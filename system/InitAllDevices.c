@@ -36,8 +36,9 @@ void Init_Device(void)
 }
 
 int Delta;
-void InitAllDatas(void){
-	// COM0，COM1接受数据缓冲区指针
+
+void InitDeviceStatus(void){
+		// COM0，COM1接受数据缓冲区指针
 	ucCom0ReceivePointer = 0;
 	ucCom1ReceivePointer = 0;
 	// 控制加热炉功率变量赋初值
@@ -49,24 +50,12 @@ void InitAllDatas(void){
 	ulCountTime = 0;
 	ulFirstPointPeroid = 0;
 	
-	///////////////////////////////////
-	// 为了防止在计算时被零除
-	fTotalWeight = 100;
-	/////////////////////////////////
-	// 以下的赋初值为测使用，实际情况应该从数据库中读取或从上位机传来
-	uiPower1 = 45;
-	uiPower2 = 50;
-	uiPower3 = 50;
-	uiPower4 = 50;
+	waterHEATER = 1;
+	COMPRESSOR = 1;
 	
 	/////////////////////////////////////////////////
 	// 指向滴数时间的缓冲区元素的指针
 	ucPointer = 0;
-	
-	/////////////////////////////////////////////////
-	// 以下为测试使用
-	iCryostatHigh = 70;
-	iCryostatLow  = 60;
 	
 	////////////////////////////////////////////////////
 	// 这部分的考虑是为了防止上下限太小了，避免频繁启动压缩机
@@ -94,13 +83,13 @@ void InitAllDatas(void){
 	/**********************************************/
 	fFlask1Weight = 0;
 	fFlask2Weight = 0;
-	fTotalWeight = 0;
 	fCurPurePervious100Weight = 0;
 	fCurPureNext100Weight = 0;
 	fCurWeight = 0;
 	fCurWeightPer = 0;
 	fCurPureWeight = 0;
 	fCurPurePervious100Weight = 0;
+	
 	
 	/**********************************************/
 	tianping_status = 0;
@@ -114,10 +103,57 @@ void InitAllDatas(void){
 	fFirstPontTemp = 0;
 	bSendFirstPoint = 0;
 	
-	volumnThresholdForLastpoint = 94;
 	fMaxTemp = -100.0;	
-	iLastPointDelayThreashold = 180;
-	bSendLastPoint = 0;
+	bSendLastPoint = 0;	
+	iCoolingDelay = 60;	
+		
+	/***********************************************/
+	cryostatWorking = 0;
+	furnanceWorking = 0;
+	currentCommand = IDLE;
 	
-	iCoolingDelay = 180;
+	allowFirstPoint = 1;
 }
+
+
+void InitAllDatas(void){
+	/////////////////////////////////
+	// 以下的赋初值为测使用，实际情况应该从数据库中读取或从上位机传来
+	ucMethod 							= 0;
+	uiPower1 							= 45;
+	uiPower2 							= 50;
+	uiPower3 							= 50;
+	uiPower4 							= 50;
+	iCryostatLow  				= 10;
+	iCryostatHigh 				= 70;
+	
+	fStreamCorrect 				= 0;
+	fAtmCorrect 					= 0;
+	fJingbuTemp						= 120;
+	fTotalWeight				  = 100;
+		
+	iVolumnThresholdForLastpoint 	= 94;
+	iLastPointFindThreshold 			= 20;
+	iLastPointDelayThreashold 		= 60;
+	iMaxStreamTemperature 				= 400;
+	iDryPointDelay								= 30;
+	iVolumnDelay 									= 30;
+	
+	
+	////////////////////////////////////////////////////
+	// 这部分的考虑是为了防止上下限太小了，避免频繁启动压缩机
+	Delta = iCryostatHigh - iCryostatLow;
+	if(abs(Delta)<4){
+		iCryostatMid = (iCryostatHigh + iCryostatLow) / 2;
+		
+		iCryostatLow = iCryostatMid - Delta / 2;
+		iCryostatHigh = iCryostatMid + Delta / 2;
+	}else{
+		iCryostatMid = (iCryostatHigh + iCryostatLow) / 2;
+	}
+	////////////////////////////////////////////////////	
+	iCryostat25per = iCryostatLow + Delta/4;
+	iCryostat75per = iCryostatHigh - Delta/4;
+}
+
+

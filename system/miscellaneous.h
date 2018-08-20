@@ -8,4 +8,5 @@ void buzzer();
 void ResetDevice();
 void InitAllDatas(void);
 void updateDensor();
+unsigned char generateCRC(unsigned char* ptr,int len);
 #endif

@@ -8,5 +8,5 @@ void sendscom0(void *ptr,unsigned int n);
 
 void sendcom1computer_byte(unsigned char dat);
 
-void sendcom1computer_float(unsigned int mod,float dat);
+void sendcom1computer_float(unsigned char mod,float dat);
 #endif

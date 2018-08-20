@@ -146,7 +146,6 @@ void UART1ISR(void) interrupt  20
 			  && ucCom1ReceiveByte[ucCom1ReceivePointer - 4] == 0xcc
 			  && ucCom1ReceiveByte[0] == 0xAA)		
 			{
-				buzzer();
 				currentCommand = ucCom1ReceiveByte[2];
 				ucCom1ReceivePointer = 0;
 			}	
@@ -165,22 +164,29 @@ void sendcom1computer_byte(unsigned char dat)
 	SFRPAGE = SFRPAGE_SAVE;
 }
 
-void sendcom1computer_float(unsigned int mod,float dat)
+void sendcom1computer_float(unsigned char mod,float dat)
 { 
 	unsigned char a,b,c,d;
 	unsigned char* ptr = (unsigned char*)&dat;
+	unsigned char context[5] = {0};
 	a = *ptr;ptr++;
 	b = *ptr;ptr++;
 	c = *ptr;ptr++;
 	d = *ptr;
 	
+	context[0] = mod;
+	context[1] = a;
+	context[2] = b;
+	context[3] = c;
+	context[4] = d;
+	
 	sendcom1computer_byte(0xaa);   
 	sendcom1computer_byte(mod); 
-	//sendscom1computer(&dat,sizeof(float));
 	sendcom1computer_byte(a); 
 	sendcom1computer_byte(b); 
 	sendcom1computer_byte(c); 
 	sendcom1computer_byte(d); 
+	sendcom1computer_byte(generateCRC(context,5)); 
 	sendcom1computer_byte(0xcc);  
 	sendcom1computer_byte(0x33);  
 	sendcom1computer_byte(0xc3);  

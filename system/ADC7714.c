@@ -109,5 +109,9 @@ void read7714tempratuer(unsigned char channel)
 		
 		fDeviceTemperature[channel] = (flag==1)?temperature_value[channel]*(-1.0):temperature_value[channel];
 		fDeviceTemperature[channel] *= 0.01f;
+		
+		if(channel == DEVICEP1STREAMTEMP){
+			fDeviceTemperature[channel] += fStreamCorrect;
+		}
 	}			
 } 

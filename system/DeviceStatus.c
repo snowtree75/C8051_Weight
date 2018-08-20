@@ -121,12 +121,6 @@ float	fTemperatures[3];
 说明：保存保存了上位机传递的参数
 ***********************************************/
 unsigned char ucMethod;
-unsigned char ucP1;
-unsigned char ucP2;
-unsigned char ucP3;
-unsigned char ucP4;
-unsigned char ucLow;
-unsigned char ucHigh;
 float 	fStreamCorrect;
 float 	fCondensorCorrect;
 float 	fAtmCorrect;
@@ -146,8 +140,14 @@ int 		iFirst300Delay;
 bit 		bLastPoint;
 bit 		bSendFirstPoint;
 
-int 		volumnThresholdForLastpoint;
+int 		iVolumnThresholdForLastpoint;
+int 		iLastPointFindThreshold;
 int 		iLastPointDelayThreashold;
+int 		iMaxStreamTemperature;
+int 		iDryPointDelay;
+int 		iVolumnDelay;
+
+	
 bit 		bSendLastPoint;
 int 		iCoolingDelay;
 
