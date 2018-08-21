@@ -174,6 +174,7 @@ void TMR4_ISR(void) interrupt  16
 		//buzzer();
 		
 		// 回收速度空值，一秒钟调整一次
+		
 		if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER){
 				//1计算回收速度
 				fCurVelocity = (fCurPureWeight - fPrePureWeight) * 60;			//当前速度
@@ -183,6 +184,7 @@ void TMR4_ISR(void) interrupt  16
 					fCurPower += (Fuzzy_Control(fCurError,(fCurError - fPreError)) / 10.0);		
 					iTempPower = fCurPower < 0 ? 0 : floor(fCurPower);
 					iTempPower = fCurPower > 100 ? 100 : floor(fCurPower);
+	
 					uiTempPower = iTempPower;
 				}					
 		

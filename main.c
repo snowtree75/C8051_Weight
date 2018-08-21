@@ -125,43 +125,6 @@ void TaskControlNeck(void)
 	// shaopingresetjudge_pin = 1 表示挡片没有遮挡
 	// shaoping_mor_PIN = 0 表示开启
 	
-	/*if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER)
-	{	
-	
-		if(!shaopingresetjudge_pin)		 //end
-		{
-			shaoping_mor_PIN = 1;// close motor
-			SHAOPING_OPEN = 0; // 
-		}
-		
-		
-		if(shaopingresetjudge_pin&&!SHAOPING_OPEN){// 
-				if(fDeviceTemperature[NECKTEMP] < fJingbuTemp) {
-					shaopingheat_PIN = 0;
-				}else{
-					SHAOPING_OPEN = 1;//open shaoping jia
-					shaopingheat_PIN = 1;// stop heat		
-					shaoping_mor_PIN = 0;//open motor					
-				}
-		} 
-		else{
-			shaopingheat_PIN = 1 ;
-		}
-	}	
-
-	if(ucCurDeviceStatus == READY){
-		if(shaopingresetjudge_pin){
-			SHAOPING_OPEN = 1;//open shaoping jia
-			shaopingheat_PIN = 1;// stop heat		
-			shaoping_mor_PIN = 0;//open motor
-		}
-		else	 //end
-		{
-			shaoping_mor_PIN = 1;// close motor
-			SHAOPING_OPEN = 0; // 
-		}
-	}
-	*/
 	
 	if(shaopingresetjudge_pin&&(fDeviceTemperature[NECKTEMP] > fJingbuTemp + 10)){//颈部温度打开的阈值为颈部设定温度在增加10度
 		//并且夹子是夹上的
@@ -248,6 +211,7 @@ void idleTask(void){
 						bSendFirstPoint = 1;
 						buzzer();
 					}
+					
 					/*else if(!bRecvFirstPointACK && (uiSendTimeOut > 600)){//没有收到且超时，则重发
 						bRecvFirstPointACK	= 0;
 						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
@@ -407,8 +371,8 @@ void parseParameter(){
 	iVolumnDelay 														= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	
 	fRetrieveVolecity												= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
-	fRetrieveVolecity = fRetrieveVolecity < 2 ? 2 : fRetrieveVolecity;
-	fRetrieveVolecity = fRetrieveVolecity > 9 ? 9 : fRetrieveVolecity;
+	fRetrieveVolecity 											= fRetrieveVolecity < 2 ? 2 : fRetrieveVolecity;
+	fRetrieveVolecity 											= fRetrieveVolecity > 9 ? 9 : fRetrieveVolecity;
 	
 	// 给功率调整使用
 	uiTempPower						= uiPower3;
@@ -475,14 +439,7 @@ void mainControl(void){
 				currentCommand = IDLE;
 				buzzer();
 			break;
-		
-		case SACK1://初馏点应答
-			//bRecvFirstPointACK = 1;
-			break;
-		
-		case SACK2://终馏点应答
-			//bRecvLastPointACK = 1;
-			break;
+	
 		
 		case IDLE:
 				idleTask();
