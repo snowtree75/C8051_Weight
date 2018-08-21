@@ -160,11 +160,13 @@ void Timer4Init()
 	SFRPAGE = SFRPAGE_SAVE;     // Restore SFR page
 }
 
+int iTempPower;
 void TMR4_ISR(void) interrupt  16
 {   
 	BYTE  saveSFRPAGE=SFRPAGE;
 	SFRPAGE = TMR4_PAGE;
 	TF4 = 0;
+	//uiSendTimeOut++;
 	
 	if(count++ == 2671){
 		count = 0;
@@ -174,11 +176,16 @@ void TMR4_ISR(void) interrupt  16
 		// 回收速度空值，一秒钟调整一次
 		if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER){
 				//1计算回收速度
-				fCurVelocity = (fCurPureWeight - fPrePureWeight) * 12;			//当前速度
+				fCurVelocity = (fCurPureWeight - fPrePureWeight) * 60;			//当前速度
+			
 				fCurError = (fCurVelocity - fRetrieveVolecity);//速度误差,默认标准回收4.5g/min
-				if(fCurPureWeight > 5.0){					
-					uiTempPower += Fuzzy_Control(fCurError,(fCurError - fPreError));					
-				}						
+				if(fCurPureWeight > 5.0){	
+					fCurPower += (Fuzzy_Control(fCurError,(fCurError - fPreError)) / 10.0);		
+					iTempPower = fCurPower < 0 ? 0 : floor(fCurPower);
+					iTempPower = fCurPower > 100 ? 100 : floor(fCurPower);
+					uiTempPower = iTempPower;
+				}					
+		
 				
 				fPrePureWeight = fCurPureWeight;
 				fPreError = fCurError;

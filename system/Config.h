@@ -72,6 +72,9 @@ sbit 	waterHEATER								= P2^6;		//电热棒
 #define SFW2 0x9c
 #define SVSC 0xa1
 
+#define SACK1 0x23
+#define SACK2 0x24
+
 //////////////////////////////////
 
 #define CATM 0x90//
@@ -93,7 +96,7 @@ sbit 	waterHEATER								= P2^6;		//电热棒
 #define CFW2 0x9c
 #define CBOF 0x3e
 #define CSMW 0xa1
-#define CRLV 0x59
+#define CRLV 0x59//回收速度 ml/min
 #define CDLV 0x58
 		
 //------------此二脚在电路板上标反-----------------

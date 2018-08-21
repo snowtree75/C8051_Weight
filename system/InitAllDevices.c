@@ -89,8 +89,7 @@ void InitDeviceStatus(void){
 	fCurWeightPer = 0;
 	fCurPureWeight = 0;
 	fCurPurePervious100Weight = 0;
-	
-	
+		
 	/**********************************************/
 	tianping_status = 0;
 	/***********************************************
@@ -102,9 +101,11 @@ void InitDeviceStatus(void){
 	iFirst300Delay = 300;
 	fFirstPontTemp = 0;
 	bSendFirstPoint = 0;
+	//bRecvFirstPointACK = 0;
 	
 	fMaxTemp = -100.0;	
 	bSendLastPoint = 0;	
+	//bRecvLastPointACK = 0;
 	iCoolingDelay = 60;	
 		
 	/***********************************************/
@@ -115,6 +116,8 @@ void InitDeviceStatus(void){
 	allowFirstPoint = 1;
 	
 	uiTempPower			= uiPower3;
+	fRetrieveVolecity = 4.5;
+	fCurVelocity = 1;
 	
 	SHAOPING_OPEN = 0;//默认打开烧瓶夹子
 }
@@ -128,6 +131,7 @@ void InitAllDatas(void){
 	uiPower2 							= 50;
 	uiPower3 							= 50;
 	uiTempPower						= uiPower3;
+	fCurPower							= uiPower3;
 	uiPower4 							= 50;
 	iCryostatLow  				= 10;
 	iCryostatHigh 				= 70;

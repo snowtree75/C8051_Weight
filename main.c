@@ -163,17 +163,36 @@ void TaskControlNeck(void)
 	}
 	*/
 	
-	if(fDeviceTemperature[NECKTEMP] > fJingbuTemp){
+	if(shaopingresetjudge_pin&&(fDeviceTemperature[NECKTEMP] > fJingbuTemp + 10)){//颈部温度打开的阈值为颈部设定温度在增加10度
+		//并且夹子是夹上的
 		SHAOPING_OPEN = 0;//设置打开信号
+		shaopingheat_PIN = 1;//关闭加热
 	}
 	
-	if(!SHAOPING_OPEN){//没有打开的话，
+	
+	//控制颈部温度加热
+	if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER){//表示实验开始后才加温
+		if(shaopingresetjudge_pin){//没有打开的话，开始加热
+			if((fDeviceTemperature[DEVICEP1STREAMTEMP] < fJingbuTemp - 2) && ( shaopingheat_PIN == 1)){//低于颈部温度-2，且没有加热
+				shaopingheat_PIN = 0;//开始加热
+			}
+			
+			if((fDeviceTemperature[DEVICEP1STREAMTEMP] > fJingbuTemp - 2) && ( shaopingheat_PIN == 0)){//高于颈部温度+2，且加热
+				shaopingheat_PIN = 1;//停止加热
+			}
+		}
+	}
 		
+		
+	if(!SHAOPING_OPEN){//没有打开的话，
+			
+		//控制颈部加热夹马达
 		if(shaopingresetjudge_pin){
 			shaoping_mor_PIN = 0;//打开马达
+			shaopingheat_PIN = 1;//关闭烧瓶颈部加热
 		}else{
 			shaoping_mor_PIN = 1;// 关闭马达
-			SHAOPING_OPEN = 1;//设置为打开
+			SHAOPING_OPEN = 1;//设置为已打开
 			shaopingheat_PIN = 1;//关闭烧瓶颈部加热
 		}		
 	}
@@ -187,13 +206,25 @@ void idleTask(void){
 					ucCurDeviceStatus = FIRSTPOINT2VOLUMN96PER;
 					bFirstPoint = 0;
 					fFirstPontTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
-					iFirstPointDelay = ulCountTime;
-					if(!bSendFirstPoint){
-						buzzer();
+					iFirstPointDelay = ulCountTime;					
+					
+					if(!bSendFirstPoint){//没有发送,则发送一次
+						//bRecvFirstPointACK	= 0;
 						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
 						sendcom1computer_float(CFPD,ulCountTime); //发送初馏点delay	
-						bSendFirstPoint = 1;						
+						//uiSendTimeOut = 0;//初始化
+						bSendFirstPoint = 1;
+						buzzer();
 					}
+					/*else if(!bRecvFirstPointACK && (uiSendTimeOut > 600)){//没有收到且超时，则重发
+						bRecvFirstPointACK	= 0;
+						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
+						sendcom1computer_float(CFPD,ulCountTime); //发送初馏点delay	
+						uiSendTimeOut = 0;//初始化
+					}
+					*/
+					
+					
 				}else{
 					if(ulCountTime >= iFirst300Delay){
 						ucCurDeviceStatus = F300SECOND2FIRSTPOINT;
@@ -205,10 +236,26 @@ void idleTask(void){
 			case F300SECOND2FIRSTPOINT:
 				if(bFirstPoint){
 					ucCurDeviceStatus = FIRSTPOINT2VOLUMN96PER;
-					buzzer();
 					bFirstPoint = 0;
 					fFirstPontTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
 					iFirstPointDelay = ulCountTime;
+					
+					if(!bSendFirstPoint){//没有发送,则发送一次
+						//bRecvFirstPointACK	= 0;
+						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
+						sendcom1computer_float(CFPD,ulCountTime); //发送初馏点delay	
+						//uiSendTimeOut = 0;//初始化
+						bSendFirstPoint = 1;
+						buzzer();
+					}
+					/*else if(!bRecvFirstPointACK && (uiSendTimeOut > 600)){//没有收到且超时，则重发
+						bRecvFirstPointACK	= 0;
+						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
+						sendcom1computer_float(CFPD,ulCountTime); //发送初馏点delay	
+						uiSendTimeOut = 0;//初始化
+					}
+					*/
+
 				}
 				break;
 				
@@ -232,12 +279,20 @@ void idleTask(void){
 					
 					if(fMaxTemp > fDeviceTemperature[DEVICEP1STREAMTEMP] + iLastPointFindThreshold){// down 20C, test stop
 							bLastPoint = 1;
-						
+							
+								
 							fLastPointTemp = fMaxTemp;
 							if(!bSendLastPoint){
 								sendcom1computer_float(CLPT,fLastPointTemp); //发送zhong馏点
-								bSendLastPoint = 1;						
+								//uiSendTimeOut = 0;//初始化	
+								bSendLastPoint = 1;
 							}
+							/*else if(!bRecvLastPointACK && (uiSendTimeOut > 600)){//没有收到且超时，则重发
+								bRecvLastPointACK = 0;
+								sendcom1computer_float(CLPT,fLastPointTemp); //发送zhong馏点
+								uiSendTimeOut = 0;//初始化	
+							}
+							*/
 							furnanceWorking = 0;
 							cryostatWorking = 0;
 							ulCountTime = 0;
@@ -258,10 +313,19 @@ void idleTask(void){
 						bLastPoint = 1;
 						
 						fLastPointTemp = fMaxTemp;
+							
 						if(!bSendLastPoint){
-							sendcom1computer_float(CLPT,fLastPointTemp); //发送zhong馏点
-							bSendLastPoint = 1;						
-						}
+								sendcom1computer_float(CLPT,fLastPointTemp); //发送zhong馏点
+							//	uiSendTimeOut = 0;//初始化	
+								bSendLastPoint = 1;
+							}
+						/*else if(!bRecvLastPointACK && (uiSendTimeOut > 600)){//没有收到且超时，则重发
+								bRecvLastPointACK = 0;
+								sendcom1computer_float(CLPT,fLastPointTemp); //发送zhong馏点
+								uiSendTimeOut = 0;//初始化	
+							}*/
+							
+							
 						furnanceWorking = 0;
 						cryostatWorking = 0;
 						ulCountTime = 0;
@@ -343,9 +407,12 @@ void parseParameter(){
 	iVolumnDelay 														= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	
 	fRetrieveVolecity												= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
+	fRetrieveVolecity = fRetrieveVolecity < 2 ? 2 : fRetrieveVolecity;
+	fRetrieveVolecity = fRetrieveVolecity > 9 ? 9 : fRetrieveVolecity;
 	
 	// 给功率调整使用
 	uiTempPower						= uiPower3;
+	fCurPower							= uiPower3;
 	updateDensor();	
 }
 
@@ -409,6 +476,14 @@ void mainControl(void){
 				buzzer();
 			break;
 		
+		case SACK1://初馏点应答
+			//bRecvFirstPointACK = 1;
+			break;
+		
+		case SACK2://终馏点应答
+			//bRecvLastPointACK = 1;
+			break;
+		
 		case IDLE:
 				idleTask();
 			break;
@@ -433,6 +508,7 @@ void sendMeasurement(void){
 	sendcom1computer_float(CFW2,fFlask2Weight);
 
 	sendcom1computer_float(CFIF,uiDeviceP1FirstPointDianWei);  
+	sendcom1computer_float(CRLV,fCurVelocity);  	
 
 	if(ucCurDeviceStatus >= FIRST300SECONDHEATING
 		&& ucCurDeviceStatus <= DEVICECOOLING ){				
@@ -454,6 +530,7 @@ void main(void){
 	Init_Device(); 
 	IE_enable(); 
 	InitDeviceStatus();
+	
 	InitAllDatas();
 	
 	for(;;){

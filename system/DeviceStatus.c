@@ -98,7 +98,7 @@ float fVelocity;//滴速，滴/分钟
 
 float fPrePureWeight = 0;
 float fCurVelocity;
-float fCurError,fPreError;
+float fCurError,fPreError,fCurPower;
 
 /***********************************************
 说明：保存冷浴温度上/下限
@@ -139,6 +139,7 @@ int 		iFirst300Delay;
 
 bit 		bLastPoint;
 bit 		bSendFirstPoint;
+//bit			bRecvFirstPointACK;
 
 int 		iVolumnThresholdForLastpoint;
 int 		iLastPointFindThreshold;
@@ -150,8 +151,10 @@ int 		iVolumnDelay;
 float 	fRetrieveVolecity;
 	
 bit 		bSendLastPoint;
-int 		iCoolingDelay;
+//bit			bRecvLastPointACK;
 
+int 		iCoolingDelay;
+//unsigned int 	uiSendTimeOut;
 float 	fMaxTemp;//临时温度，找寻终馏点
 unsigned int uiTempPower;//临时功率变量，调整功率用
 float 	fLastPointTemp;//干点（终馏点温度值）

@@ -102,6 +102,7 @@ extern float fPrePureWeight;
 extern float fCurVelocity;
 extern float fCurError;
 extern float fPreError;
+extern float fCurPower;
 /***********************************************
 说明：保存冷浴温度上/下限
 ***********************************************/
@@ -135,6 +136,7 @@ extern bit bFirstPoint;
 extern bit bLastPoint;
 extern bit allowFirstPoint;
 extern bit bSendFirstPoint;
+//extern bit bRecvFirstPointACK;
 
 extern float 	fFirstPontTemp;
 extern int 		iFirstPointDelay;
@@ -153,8 +155,10 @@ extern float 	fRetrieveVolecity;
 extern float 					fMaxTemp;
 extern unsigned int 	uiTempPower;//临时功率变量，调整功率用
 extern bit						bSendLastPoint;
+//extern bit						bRecvLastPointACK;
 extern float 					fLastPointTemp;//干点（终馏点温度值）
 extern unsigned int 	uiLastPointTime;//在三分钟内，没有新的回收滴，则最后一滴为干点
+//extern unsigned int 	uiSendTimeOut;
 
 extern int 						iCoolingDelay;
 #endif 
