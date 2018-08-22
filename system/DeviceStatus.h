@@ -103,6 +103,7 @@ extern float fCurVelocity;
 extern float fCurError;
 extern float fPreError;
 extern float fCurPower;
+extern unsigned char ucPowerChangePeriod;
 /***********************************************
 说明：保存冷浴温度上/下限
 ***********************************************/

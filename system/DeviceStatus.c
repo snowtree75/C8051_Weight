@@ -99,6 +99,7 @@ float fVelocity;//滴速，滴/分钟
 float fPrePureWeight = 0;
 float fCurVelocity;
 float fCurError,fPreError,fCurPower;
+unsigned char ucPowerChangePeriod;
 
 /***********************************************
 说明：保存冷浴温度上/下限

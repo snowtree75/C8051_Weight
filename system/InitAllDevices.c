@@ -89,7 +89,7 @@ void InitDeviceStatus(void){
 	fCurWeightPer = 0;
 	fCurPureWeight = 0;
 	fCurPurePervious100Weight = 0;
-		
+	ucPowerChangePeriod = 0;
 	/**********************************************/
 	tianping_status = 0;
 	/***********************************************
