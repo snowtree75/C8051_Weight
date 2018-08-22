@@ -173,7 +173,9 @@ void idleTask(void){
 					
 					if(!bSendFirstPoint){//没有发送,则发送一次
 						//bRecvFirstPointACK	= 0;
+						delayms(100);
 						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
+						delayms(100);
 						sendcom1computer_float(CFPD,ulCountTime); //发送初馏点delay	
 						//uiSendTimeOut = 0;//初始化
 						bSendFirstPoint = 1;
@@ -205,7 +207,9 @@ void idleTask(void){
 					
 					if(!bSendFirstPoint){//没有发送,则发送一次
 						//bRecvFirstPointACK	= 0;
+						delayms(100);
 						sendcom1computer_float(CFPT,fFirstPontTemp); //发送初馏点
+						delayms(100);
 						sendcom1computer_float(CFPD,ulCountTime); //发送初馏点delay	
 						//uiSendTimeOut = 0;//初始化
 						bSendFirstPoint = 1;
@@ -310,8 +314,9 @@ void idleTask(void){
 				break;
 		}
 		
+		//计算机回收数量
 		if(ucCurDeviceStatus >= FIRST300SECONDHEATING
-		&& ucCurDeviceStatus <= DEVICECOOLING) 
+				&& ucCurDeviceStatus <= DEVICECOOLING) 
 		{
 			if(fCurWeight < 0)
 				fCurWeight = 0;
@@ -321,17 +326,18 @@ void idleTask(void){
 
 			if(fDeviceTemperature[DEVICEP1STREAMTEMP] <= 300){//300摄氏度，换烧杯
 				fCurPurePervious100Weight = fCurWeight - fFlask1Weight;		
-				fCurPurePervious100Weight = fCurPurePervious100Weight <0 ? 0 : fCurPurePervious100Weight;		
+				fCurPurePervious100Weight = (fCurPurePervious100Weight < 0) ? 0 : fCurPurePervious100Weight;		
 				fCurPureWeight = fCurPurePervious100Weight;
 				fCurWeightPer = 100 * fCurPurePervious100Weight / fTotalWeight ;
 			}else{	
 				fCurPureNext100Weight = fCurWeight - fFlask2Weight;	
-				fCurPureNext100Weight = fCurPureNext100Weight <0 ? 0 : fCurPureNext100Weight;	
+				fCurPureNext100Weight = (fCurPureNext100Weight < 0) ? 0 : fCurPureNext100Weight;	
 				fCurPureWeight = fCurPurePervious100Weight + fCurPureNext100Weight;//加上180前的
 				fCurWeightPer = 100 * fCurPurePervious100Weight / fTotalWeight ;
 			}
 		}
 }
+
 float byteArray2Float(unsigned char* pData,int start){
 	float value = 0;
 	unsigned char* ptr = (unsigned char*)&value;
@@ -371,8 +377,12 @@ void parseParameter(){
 	iVolumnDelay 														= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	
 	fRetrieveVolecity												= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
-	fRetrieveVolecity 											= fRetrieveVolecity < 2 ? 2 : fRetrieveVolecity;
-	fRetrieveVolecity 											= fRetrieveVolecity > 9 ? 9 : fRetrieveVolecity;
+	if(fRetrieveVolecity < 2){
+		fRetrieveVolecity = 2;
+	}else if(fRetrieveVolecity > 9){
+		fRetrieveVolecity = 9;
+	}
+	
 	
 	// 给功率调整使用
 	uiTempPower						= uiPower3;
@@ -468,7 +478,8 @@ void sendMeasurement(void){
 	sendcom1computer_float(CRLV,fCurVelocity);  	
 
 	if(ucCurDeviceStatus >= FIRST300SECONDHEATING
-		&& ucCurDeviceStatus <= DEVICECOOLING ){				
+		&& ucCurDeviceStatus <= DEVICECOOLING ){	
+		delayms(100);			
 		sendcom1computer_float(CRVL,fCurWeightPer);
 	}else{			
 		sendcom1computer_float(CRVL,fCurWeight); 
