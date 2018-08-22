@@ -25,5 +25,6 @@
 #include "InitAllDevices.h"
 #include "IE.h"
 #include "fuzzycontrol.h"
+#include "FunctionFit.h"
 
 #endif

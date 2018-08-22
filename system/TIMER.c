@@ -176,26 +176,34 @@ void TMR4_ISR(void) interrupt  16
 		// 回收速度空值，一秒钟调整一次
 		
 		if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER){
-				ucPowerChangePeriod++;
-				if(ucPowerChangePeriod >= 5){
-					ucPowerChangePeriod = 0;
-					
-					//1计算回收速度
-					fCurVelocity = (fCurPureWeight - fPrePureWeight) * 12;			//当前速度
+				if(fCurPureWeight > 5.0){//当前回收超过5ml，开始调整功率
+						ucPowerChangePeriod++;
+						if(ucPowerChangePeriod >= 5){//功率的调整周期为 5s调整一次
+							ucPowerChangePeriod = 0;//
+							
+							//1计算回收速度
+							fCurVelocity = (fCurPureWeight - fPrePureWeight) * 12;			//当前速度						
+							fCurError = (fCurVelocity - fRetrieveVolecity);//速度误差,默认标准回收4.5g/min
+							
+							fCurPower += (Fuzzy_Control(fCurError,(fCurError - fPreError)) / 2.0);		
+							if(fCurPower < 0){
+								iTempPower = 0;
+								fCurPower = 0;
+							}else if(fCurPower > 100){
+								iTempPower = 100;
+								fCurPower = 100;
+							}else{
+								iTempPower = (int)floor(fCurPower);
+							}
+							
+							uiTempPower = iTempPower;												
+							fPrePureWeight = fCurPureWeight;
+							fPreError = fCurError;
+						}
 				
-					fCurError = (fCurVelocity - fRetrieveVolecity);//速度误差,默认标准回收4.5g/min
-					if(fCurPureWeight > 5.0){	
-						fCurPower += (Fuzzy_Control(fCurError,(fCurError - fPreError)) / 10.0);		
-						iTempPower = fCurPower < 0 ? 0 : floor(fCurPower);
-						iTempPower = fCurPower > 100 ? 100 : floor(fCurPower);
-		
-						uiTempPower = iTempPower;
-					}					
-			
-					
-					fPrePureWeight = fCurPureWeight;
-					fPreError = fCurError;
+						
 				}
+				
 			}
 		
 		// for balance on & off
