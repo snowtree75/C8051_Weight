@@ -71,7 +71,7 @@ sbit 	waterHEATER								= P2^6;		//µÁ»»∞Ù
 #define SFW1 0x41
 #define SFW2 0x9c
 #define SVSC 0xa1
-
+#define SFFP 0x88
 //////////////////////////////////
 
 #define CATM 0x90//

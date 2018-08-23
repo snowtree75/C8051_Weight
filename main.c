@@ -166,7 +166,7 @@ void idleTask(void){
 		switch(ucCurDeviceStatus){
 			case FIRST300SECONDHEATING:
 				if(bFirstPoint){
-					ucCurDeviceStatus = FIRSTPOINT2VOLUMN96PER;
+					
 					bFirstPoint = 0;
 					fFirstPontTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
 					iFirstPointDelay = ulCountTime;					
@@ -189,7 +189,7 @@ void idleTask(void){
 					}
 					*/
 					
-					
+					ucCurDeviceStatus = FIRSTPOINT2VOLUMN96PER;
 				}else{
 					if(ulCountTime >= iFirst300Delay){
 						ucCurDeviceStatus = F300SECOND2FIRSTPOINT;
@@ -199,8 +199,7 @@ void idleTask(void){
 				break;
 			
 			case F300SECOND2FIRSTPOINT:
-				if(bFirstPoint){
-					ucCurDeviceStatus = FIRSTPOINT2VOLUMN96PER;
+				if(bFirstPoint){					
 					bFirstPoint = 0;
 					fFirstPontTemp = fDeviceTemperature[DEVICEP1STREAMTEMP];
 					iFirstPointDelay = ulCountTime;
@@ -223,7 +222,7 @@ void idleTask(void){
 						uiSendTimeOut = 0;//初始化
 					}
 					*/
-
+					ucCurDeviceStatus = FIRSTPOINT2VOLUMN96PER;
 				}
 				break;
 				
@@ -324,17 +323,24 @@ void idleTask(void){
 			if(fTotalWeight <= 0)
 				fTotalWeight = 1;
 
+			/*
 			if(fDeviceTemperature[DEVICEP1STREAMTEMP] <= 300){//300摄氏度，换烧杯
 				fCurPurePervious100Weight = fCurWeight - fFlask1Weight;		
 				fCurPurePervious100Weight = (fCurPurePervious100Weight < 0) ? 0 : fCurPurePervious100Weight;		
-				fCurPureWeight = fCurPurePervious100Weight;
-				fCurWeightPer = 100 * fCurPurePervious100Weight / fTotalWeight ;
+				fCurPureWeight = fCurPurePervious100Weight;				
 			}else{	
 				fCurPureNext100Weight = fCurWeight - fFlask2Weight;	
 				fCurPureNext100Weight = (fCurPureNext100Weight < 0) ? 0 : fCurPureNext100Weight;	
 				fCurPureWeight = fCurPurePervious100Weight + fCurPureNext100Weight;//加上180前的
-				fCurWeightPer = 100 * fCurPurePervious100Weight / fTotalWeight ;
 			}
+			
+			fCurWeightPer = 100 * fCurPureWeight / fTotalWeight ;
+			*/
+			
+			fCurPurePervious100Weight = fCurWeight - fFlask1Weight;		
+			fCurPurePervious100Weight = (fCurPurePervious100Weight < 0) ? 0 : fCurPurePervious100Weight;		
+			fCurPureWeight = fCurPurePervious100Weight;		
+			fCurWeightPer = 100 * fCurPureWeight / fTotalWeight ;			
 		}
 }
 
@@ -354,8 +360,7 @@ float byteArray2Float(unsigned char* pData,int start){
 void parseParameter(){
 
 	int base = 3;
-	int index = 0;
-	
+	int index = 0;	
 
 	ucMethod 							= (unsigned char)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	uiPower1							= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
@@ -365,7 +370,7 @@ void parseParameter(){
 	iCryostatLow 					= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	iCryostatHigh 				= (unsigned int)(int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fStreamCorrect 				= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	fAtmCorrect 					= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	fAtmCorrect 					= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;		
 	fJingbuTemp						= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	fTotalWeight				  = byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	
@@ -390,22 +395,43 @@ void parseParameter(){
 	updateDensor();	
 }
 
+float xx[3];
+float yy[3];
+void parseFunctionFitParameter(){
+	int base = 3;
+	int index = 0;
+	double P[3];
+	
+	xx[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;	
+	yy[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	xx[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	yy[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	xx[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	yy[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
+			
+	polyfit(3,xx,yy,2,P);
+	k0 = P[0];
+	k1 = P[1];
+	k2 = P[2];
+	
+}
+
 void mainControl(void){
 	
 	switch(currentCommand){
 		case SZCC : // zero correcting
 				buzzer();
-				if(SUCCESS == zeroCorrect()){
-					currentCommand = IDLE;
+				if(SUCCESS == zeroCorrect()){					
 					ucCurDeviceStatus = CABLIRATEZEROPOINT;
+					currentCommand = IDLE;
 				}
 			break;
 
 		case SVCC : // volumn correcting 
 				buzzer();
-				if(SUCCESS == volumnCorrect()){
-					currentCommand = IDLE;
+				if(SUCCESS == volumnCorrect()){					
 					ucCurDeviceStatus = CABLIRATEVOLUMN;
+					currentCommand = IDLE;
 				}
 			break;
 		
@@ -422,10 +448,10 @@ void mainControl(void){
 			break;
 		
 		case SSTC : // stop test		
-				buzzer();	
-				currentCommand = IDLE;
+				buzzer();					
 				ucCurDeviceStatus = VOLUMN96PER2LASTPOINT;
 				ulCountTime = iLastPointDelayThreashold ;
+				currentCommand = IDLE;
 			break;
 		
 		case SRST : // reset device
@@ -449,6 +475,10 @@ void mainControl(void){
 				currentCommand = IDLE;
 				buzzer();
 			break;
+		
+		case SFFP:
+				currentCommand = IDLE;
+			break;
 	
 		
 		case IDLE:
@@ -464,7 +494,7 @@ void mainControl(void){
 void sendMeasurement(void){
 	sendcom1computer_float(CCTM,(int)ulCountTime);// send one second as counter
 	
-	sendcom1computer_float(CATM,fDeviceAtm); 
+	sendcom1computer_float(CATM,fDeviceAtm + fAtmCorrect); //不太合适
 	sendcom1computer_float(CSGT,fDeviceTemperature[DEVICEP1STREAMTEMP]); 
 
 	//***************************************************************************************
@@ -490,8 +520,7 @@ void sendMeasurement(void){
 	//sendcom1computer_float(CDLV,vari.COMP0drops);
 	sendcom1computer_float(CBOF,tianping_status);
  
-	sendcom1computer_float(CSTA,ucCurDeviceStatus);// send device status
-	
+	sendcom1computer_float(CSTA,ucCurDeviceStatus);// send device status	
 }
 
 void main(void){

@@ -23,7 +23,7 @@ void getPressData(void)                      //获取大气压值
         ulDeviceAtm>>=14;
         ulDeviceAtm+=3000;
 				ulDeviceAtm/=10;
-				fDeviceAtm = ulDeviceAtm * 0.1f;	
+				fDeviceAtm = ulDeviceAtm * 0.1f ;	
 				///////////////////////////////////
 				ulDeviceTempture = SMB_DATA_IN[2];	
 				ulDeviceTempture <<= 6;
@@ -32,7 +32,10 @@ void getPressData(void)                      //获取大气压值
 				ulDeviceTempture >>= 14;
 				ulDeviceTempture-=4000;
 				ulDeviceTempture /=10;
-				fDeviceTempture = ulDeviceTempture * 0.1f + fAtmCorrect;
+					
+				buzzer();
+					
+				fDeviceTempture = ulDeviceTempture * 0.1f ;
        }  
   }
 	else 

@@ -72,6 +72,7 @@ void AD7714Init(void){
 	 delayms(20);
 }
 
+float x,y;
 void read7714tempratuer(unsigned char channel)
 {
 	unsigned long resu;
@@ -112,6 +113,11 @@ void read7714tempratuer(unsigned char channel)
 		
 		if(channel == DEVICEP1STREAMTEMP){
 			fDeviceTemperature[channel] += fStreamCorrect;
+			
+			x = fDeviceTemperature[channel];
+			y = k2 * x * x + k1 * x + k0;
+			
+			fDeviceTemperature[channel] = y;
 		}
 	}			
 } 

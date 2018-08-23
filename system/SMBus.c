@@ -73,13 +73,13 @@ void SMBusISR(void) interrupt  7{//
            SMB0DAT = TARGET;              // Load address of the slave.
            SMB0DAT &= 0xFE;              
            SMB0DAT |= SMB_RW; 
-						SMB_DATA_NUM=0;              
+					 SMB_DATA_NUM=0;              
            STA = 0;                           // Manually clear STA bit
            break;
 			case SMB_MTADDACK:    //Slave address + WRITE transmitted. ACK received.
            STO = 1;                        // Set STO to terminte transfer
            SMB_BUSY = 0;                 // Clear software busy flag
-					CPS_Wake=1;
+					 CPS_Wake=1;
          break;
       
       case SMB_MTADDNACK:    //Slave address + WRITE transmitted. NACK received.

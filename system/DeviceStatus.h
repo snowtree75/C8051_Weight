@@ -162,4 +162,8 @@ extern unsigned int 	uiLastPointTime;//ÔÚÈı·ÖÖÓÄÚ£¬Ã»ÓĞĞÂµÄ»ØÊÕµÎ£¬Ôò×îºóÒ»µÎÎª¸
 //extern unsigned int 	uiSendTimeOut;
 
 extern int 						iCoolingDelay;
+
+/*******************************************************************/
+/** ÇúÏßÄâºÏÊ¹ÓÃ **/
+extern float 	k0,k1,k2;
 #endif 

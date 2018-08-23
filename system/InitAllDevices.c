@@ -163,6 +163,10 @@ void InitAllDatas(void){
 	////////////////////////////////////////////////////	
 	iCryostat25per = iCryostatLow + Delta/4;
 	iCryostat75per = iCryostatHigh - Delta/4;
+	///////////////////////////////////////////////////
+	k0 = 0;
+	k1 = 1;
+	k2 = 0;
 }
 
 
