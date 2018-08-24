@@ -1,5 +1,42 @@
 #include "system/includes.h"
 
+float byteArray2Float(unsigned char* pData,int start){
+	float value = 0;
+	unsigned char* ptr = (unsigned char*)&value;
+	ptr += 3;
+	pData += start;
+	
+	*ptr = *pData;ptr--;pData++;
+	*ptr = *pData;ptr--;pData++;
+	*ptr = *pData;ptr--;pData++;
+	*ptr = *pData;
+	return value;
+}
+
+double xx[4]={100.0,196.27,287.0,331.0};
+double yy[4]={100.0,200.0,296.0,343.0};
+
+void parseFunctionFitParameter(){
+	//int base = 3;
+	//int index = 0;
+	double P[3]={0,1,0};
+	/*
+	xx[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;	
+	yy[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	xx[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	yy[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	xx[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	yy[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
+	*/
+			
+	if(bAllowFunctionFit == 1){
+		polyfit(4,xx,yy,2,P);
+	}
+	
+	k0 = P[0];
+	k1 = P[1];
+	k2 = P[2];	
+}
 
 void obtainMeasurement(void){
 	getPressData();
@@ -125,22 +162,26 @@ void TaskControlNeck(void)
 	// shaopingresetjudge_pin = 1 表示挡片没有遮挡
 	// shaoping_mor_PIN = 0 表示开启
 	
+	allowFirstPoint = 1;//控制初馏点，初馏点的流出是否受颈部温度的控制 1 松原没有控制，始终为 1
 	
-	if(shaopingresetjudge_pin&&(fDeviceTemperature[NECKTEMP] > fJingbuTemp + 10)){//颈部温度打开的阈值为颈部设定温度在增加10度
+	diguanheat = 0;//滴管持续加热
+	
+	if(shaopingresetjudge_pin&&(fDeviceTemperature[DEVICEP1STREAMTEMP] > fJingbuTemp + 20)){//颈部温度打开的阈值为颈部设定温度在增加20度
 		//并且夹子是夹上的
 		SHAOPING_OPEN = 0;//设置打开信号
 		shaopingheat_PIN = 1;//关闭加热
+		allowFirstPoint = 1;
 	}
 	
 	
 	//控制颈部温度加热
 	if(ucCurDeviceStatus >= FIRST300SECONDHEATING && ucCurDeviceStatus <= FIRSTPOINT2VOLUMN96PER){//表示实验开始后才加温
 		if(shaopingresetjudge_pin){//没有打开的话，开始加热
-			if((fDeviceTemperature[DEVICEP1STREAMTEMP] < fJingbuTemp - 2) && ( shaopingheat_PIN == 1)){//低于颈部温度-2，且没有加热
+			if((fDeviceTemperature[NECKTEMP] < fJingbuTemp - 2) && ( shaopingheat_PIN == 1)){//低于颈部温度-2，且没有加热
 				shaopingheat_PIN = 0;//开始加热
 			}
 			
-			if((fDeviceTemperature[DEVICEP1STREAMTEMP] > fJingbuTemp - 2) && ( shaopingheat_PIN == 0)){//高于颈部温度+2，且加热
+			if((fDeviceTemperature[NECKTEMP] > fJingbuTemp - 2) && ( shaopingheat_PIN == 0)){//高于颈部温度+2，且加热
 				shaopingheat_PIN = 1;//停止加热
 			}
 		}
@@ -344,19 +385,6 @@ void idleTask(void){
 		}
 }
 
-float byteArray2Float(unsigned char* pData,int start){
-	float value = 0;
-	unsigned char* ptr = (unsigned char*)&value;
-	ptr += 3;
-	pData += start;
-	
-	*ptr = *pData;ptr--;pData++;
-	*ptr = *pData;ptr--;pData++;
-	*ptr = *pData;ptr--;pData++;
-	*ptr = *pData;
-	return value;
-}
-
 void parseParameter(){
 
 	int base = 3;
@@ -380,6 +408,7 @@ void parseParameter(){
 	iMaxStreamTemperature				  					= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	iDryPointDelay 													= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	iVolumnDelay 														= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	iFirst300Delay													= (int)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
 	
 	fRetrieveVolecity												= byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
 	if(fRetrieveVolecity < 2){
@@ -387,33 +416,11 @@ void parseParameter(){
 	}else if(fRetrieveVolecity > 9){
 		fRetrieveVolecity = 9;
 	}
-	
-	
+		
 	// 给功率调整使用
 	uiTempPower						= uiPower3;
 	fCurPower							= uiPower3;
 	updateDensor();	
-}
-
-float xx[3];
-float yy[3];
-void parseFunctionFitParameter(){
-	int base = 3;
-	int index = 0;
-	double P[3];
-	
-	xx[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;	
-	yy[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	xx[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	yy[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	xx[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	yy[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
-			
-	polyfit(3,xx,yy,2,P);
-	k0 = P[0];
-	k1 = P[1];
-	k2 = P[2];
-	
 }
 
 void mainControl(void){
@@ -476,7 +483,7 @@ void mainControl(void){
 				buzzer();
 			break;
 		
-		case SFFP:
+		case SFFP://分析温度函数拟合
 				currentCommand = IDLE;
 			break;
 	
@@ -528,6 +535,9 @@ void main(void){
 	IE_enable(); 
 	InitDeviceStatus();
 	
+	bAllowFunctionFit = 1;
+	parseFunctionFitParameter();//计算函数拟合的系数
+		
 	InitAllDatas();
 	
 	for(;;){

@@ -7,6 +7,12 @@
 void polyfit(int n, double *x, double *y, int poly_n, double p[]);
 void gauss_solve(int n,double A[],double x[],double b[]);
 
+//函数功能:进行最小二乘曲线拟合(拟合y=a0+a1*x+a2*x^2+……+a[poly_n]*x^poly_n),计算出对应的系数a?
+//参数说明:
+//      n:      给定数据点的个数
+//      x[]:    存放给定n个数据点的X坐标
+//      y[]:    存放给定n个数据点的Y坐标
+//      poly_n: 拟合多项式的系数,表示多项式的最高次数
 void polyfit(int n,double x[],double y[],int poly_n,double p[])
 {
 	int i,j;

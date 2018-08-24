@@ -44,12 +44,12 @@ void COMP0ISR(void) interrupt  11{//比较器0上升沿中断
 
 int i;
  void COMP1ISR(void) interrupt  13{
-	 unsigned char  saveSFRPAGE=SFRPAGE;
+	 unsigned char  saveSFRPAGE = SFRPAGE;
 	SFRPAGE = CPT1_PAGE;
 	if(CP1FIF){
 		CP1RIF=0;
 		CP1FIF=0;
-		
+		buzzer();
 		if((ucCurDeviceStatus == FIRST300SECONDHEATING || ucCurDeviceStatus == F300SECOND2FIRSTPOINT) && allowFirstPoint){
 			bFirstPoint = 1;
 		}

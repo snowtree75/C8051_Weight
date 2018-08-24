@@ -37,6 +37,7 @@ void Init_Device(void)
 
 int Delta;
 
+//初始的仪器的状态变量，每一次实验启动都因该调用一次
 void InitDeviceStatus(void){
 		// COM0，COM1接受数据缓冲区指针
 	ucCom0ReceivePointer = 0;
@@ -98,7 +99,6 @@ void InitDeviceStatus(void){
 	bFirstPoint = 0;
 	allowFirstPoint = 0;
 	bLastPoint = 0;
-	iFirst300Delay = 300;
 	fFirstPontTemp = 0;
 	bSendFirstPoint = 0;
 	//bRecvFirstPointACK = 0;
@@ -113,8 +113,6 @@ void InitDeviceStatus(void){
 	furnanceWorking = 0;
 	currentCommand = IDLE;
 	
-	allowFirstPoint = 1;
-	
 	uiTempPower			= uiPower3;
 	fRetrieveVolecity = 4.5;
 	fCurVelocity = 1;
@@ -122,7 +120,7 @@ void InitDeviceStatus(void){
 	SHAOPING_OPEN = 0;//默认打开烧瓶夹子
 }
 
-
+//初始的实验的参数，如果仪器接通电源或reset仪器，该函数被调用一次
 void InitAllDatas(void){
 	/////////////////////////////////
 	// 以下的赋初值为测使用，实际情况应该从数据库中读取或从上位机传来
@@ -147,7 +145,7 @@ void InitAllDatas(void){
 	iMaxStreamTemperature 				= 400;
 	iDryPointDelay								= 30;
 	iVolumnDelay 									= 30;
-	
+	iFirst300Delay 								= 300;
 	fRetrieveVolecity							= 4.5;
 	////////////////////////////////////////////////////
 	// 这部分的考虑是为了防止上下限太小了，避免频繁启动压缩机
@@ -164,9 +162,6 @@ void InitAllDatas(void){
 	iCryostat25per = iCryostatLow + Delta/4;
 	iCryostat75per = iCryostatHigh - Delta/4;
 	///////////////////////////////////////////////////
-	k0 = 0;
-	k1 = 1;
-	k2 = 0;
 }
 
 

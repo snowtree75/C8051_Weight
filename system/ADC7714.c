@@ -112,12 +112,14 @@ void read7714tempratuer(unsigned char channel)
 		fDeviceTemperature[channel] *= 0.01f;
 		
 		if(channel == DEVICEP1STREAMTEMP){
-			fDeviceTemperature[channel] += fStreamCorrect;
+			if((bAllowFunctionFit == 1) &&  (fDeviceTemperature[channel] > 100)){//允许温度调整；在温度小于100摄氏度，不用调整
+				x = fDeviceTemperature[channel];
+				y = k2 * x * x + k1 * x + k0;
+				
+				fDeviceTemperature[channel] = y;
+			}
 			
-			x = fDeviceTemperature[channel];
-			y = k2 * x * x + k1 * x + k0;
-			
-			fDeviceTemperature[channel] = y;
+			fDeviceTemperature[channel] += fStreamCorrect;			
 		}
 	}			
 } 

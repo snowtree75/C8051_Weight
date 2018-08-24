@@ -171,6 +171,7 @@ void TMR4_ISR(void) interrupt  16
 	if(count++ == 2671){
 		count = 0;
 		ulCountTime++;
+		
 		//buzzer();
 		
 		// 回收速度空值，一秒钟调整一次

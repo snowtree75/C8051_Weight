@@ -166,4 +166,5 @@ extern int 						iCoolingDelay;
 /*******************************************************************/
 /** 曲线拟合使用 **/
 extern float 	k0,k1,k2;
+extern bit bAllowFunctionFit;
 #endif 
