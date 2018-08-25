@@ -9,4 +9,6 @@ void ResetDevice();
 void InitAllDatas(void);
 void updateDensor();
 unsigned char generateCRC(unsigned char* ptr,int len);
+float byteArray2Float(unsigned char* pData,int start);
+void parseFunctionFitParameter();
 #endif

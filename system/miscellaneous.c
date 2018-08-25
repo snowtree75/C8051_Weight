@@ -101,3 +101,41 @@ void updateDensor(){
 	 
 	 return crc;
  }
+ 
+ float byteArray2Float(unsigned char* pData,int start){
+	float value = 0;
+	unsigned char* ptr = (unsigned char*)&value;
+	ptr += 3;
+	pData += start;
+	
+	*ptr = *pData;ptr--;pData++;
+	*ptr = *pData;ptr--;pData++;
+	*ptr = *pData;ptr--;pData++;
+	*ptr = *pData;
+	return value;
+}
+ 
+double xx[4]={100.0,196.27,287.0,331.0};
+double yy[4]={100.0,200.0,296.0,343.0};
+
+void parseFunctionFitParameter(){
+	//int base = 3;
+	//int index = 0;
+	double P[3]={0,1,0};
+	/*
+	xx[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;	
+	yy[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	xx[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	yy[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	xx[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
+	yy[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
+	*/
+			
+	if(bAllowFunctionFit == 1){
+		polyfit(4,xx,yy,2,P);
+	}
+	
+	k0 = P[0];
+	k1 = P[1];
+	k2 = P[2];	
+}

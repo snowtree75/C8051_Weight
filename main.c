@@ -1,43 +1,8 @@
 #include "system/includes.h"
-
-float byteArray2Float(unsigned char* pData,int start){
-	float value = 0;
-	unsigned char* ptr = (unsigned char*)&value;
-	ptr += 3;
-	pData += start;
-	
-	*ptr = *pData;ptr--;pData++;
-	*ptr = *pData;ptr--;pData++;
-	*ptr = *pData;ptr--;pData++;
-	*ptr = *pData;
-	return value;
-}
-
-double xx[4]={100.0,196.27,287.0,331.0};
-double yy[4]={100.0,200.0,296.0,343.0};
-
-void parseFunctionFitParameter(){
-	//int base = 3;
-	//int index = 0;
-	double P[3]={0,1,0};
-	/*
-	xx[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;	
-	yy[0]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	xx[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	yy[1]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	xx[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);index++;
-	yy[2]	= (float)byteArray2Float(ucCom1ReceiveByte,index * 4 + base);
-	*/
-			
-	if(bAllowFunctionFit == 1){
-		polyfit(4,xx,yy,2,P);
-	}
-	
-	k0 = P[0];
-	k1 = P[1];
-	k2 = P[2];	
-}
-
+/********************************************
+	名称：obtainMeasurement
+	功能：利用设备中的传感器获取测量数据
+*********************************************/
 void obtainMeasurement(void){
 	getPressData();
 	//acquisition4DW();
@@ -161,8 +126,9 @@ void TaskControlNeck(void)
 { 
 	// shaopingresetjudge_pin = 1 表示挡片没有遮挡
 	// shaoping_mor_PIN = 0 表示开启
-	
+#ifndef FIRSTPOINTCONTROLBYNECKTEMPERATURE
 	allowFirstPoint = 1;//控制初馏点，初馏点的流出是否受颈部温度的控制 1 松原没有控制，始终为 1
+#endif
 	
 	diguanheat = 0;//滴管持续加热
 	
@@ -202,7 +168,10 @@ void TaskControlNeck(void)
 	}
 }
 
-
+/********************************************
+	名称：idleTask
+	功能：在没有收到上位机指令的时候完成其他业务
+*********************************************/
 void idleTask(void){
 		switch(ucCurDeviceStatus){
 			case FIRST300SECONDHEATING:
@@ -385,6 +354,10 @@ void idleTask(void){
 		}
 }
 
+/********************************************
+	名称：parseParameter
+	功能：在收到上位机发送的参数后，分析各个参数
+*********************************************/
 void parseParameter(){
 
 	int base = 3;
